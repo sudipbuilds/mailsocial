@@ -36,3 +36,13 @@ yarn-error.log*
 # Misc
 .DS_Store
 *.pem
+
+# OpenNext
+.open-next
+
+# wrangler files
+.wrangler
+.dev.vars*
+
+cloudflare-env.d.ts
+next-env.d.ts

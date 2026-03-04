@@ -8,12 +8,7 @@
     ],
     "strictNullChecks": true
   },
-  "include": [
-    "**/*.ts",
-    "**/*.tsx",
-    "next-env.d.ts",
-    "next.config.js",
-    ".next/types/**/*.ts"
-  ],
+  "include": ["**/*.ts", "**/*.tsx", "next-env.d.ts", "next.config.js", ".next/types/**/*.ts"],
+  "types": ["./cloudflare-env.d.ts", "node"],
   "exclude": ["node_modules"]
 }
