@@ -1,20 +1,35 @@
 {
-  "name": "antisocial",
+  "name": "nextjs-example",
+  "version": "0.1.0",
   "private": true,
   "scripts": {
-    "build": "turbo run build",
-    "dev": "turbo run dev",
-    "lint": "turbo run lint",
-    "format": "prettier --write \"**/*.+(js|mjs|ts|tsx|json|yaml|md|mdx|css)\"",
-    "check-types": "turbo run check-types"
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "deploy": "opennextjs-cloudflare build && opennextjs-cloudflare deploy",
+    "upload": "opennextjs-cloudflare build && opennextjs-cloudflare upload",
+    "preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
+    "cf-typegen": "wrangler types --env-interface CloudflareEnv ./cloudflare-env.d.ts",
+    "format": "prettier --write \"**/*.+(js|mjs|ts|tsx|json|yaml|md|mdx|css)\""
+  },
+  "dependencies": {
+    "@opennextjs/cloudflare": "^1.17.1",
+    "next": "16.1.5",
+    "react": "19.1.5",
+    "react-dom": "19.1.5"
   },
   "devDependencies": {
-    "prettier": "^3.7.4",
-    "turbo": "^2.8.13",
-    "typescript": "5.9.2"
-  },
-  "packageManager": "pnpm@9.0.0",
-  "engines": {
-    "node": ">=18"
+    "@eslint/eslintrc": "^3",
+    "@tailwindcss/postcss": "^4",
+    "@types/node": "^20",
+    "@types/react": "^19.1.5",
+    "@types/react-dom": "^19.1.5",
+    "eslint": "^9",
+    "eslint-config-next": "15.4.6",
+    "prettier": "^3.8.1",
+    "tailwindcss": "^4",
+    "typescript": "^5.7.4",
+    "wrangler": "^4.70.0"
   }
 }

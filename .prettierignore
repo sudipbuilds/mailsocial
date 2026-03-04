@@ -49,3 +49,6 @@
 *.pid
 *.pid.lock
 *.log.*
+
+# Ignore cloudflare files
+cloudflare-env.d.ts
