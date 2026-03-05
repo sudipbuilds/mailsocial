@@ -24,6 +24,15 @@
 			"service": "antisocial"
 		}
 	],
+	"d1_databases": [
+    {
+      "binding": "D1_DATABASE",
+      "database_name": "antisocial-db",
+      "database_id": "2b634d25-f962-476e-a47d-631ca9e0c887",
+			"migrations_dir": "./src/db/migrations",
+			"remote": true
+    }
+  ],
 	"observability": {
 		"enabled": true
 	}
