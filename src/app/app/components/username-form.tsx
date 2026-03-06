@@ -6,6 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useMemo, useState, useTransition } from 'react';
 
 import { cn } from '@/lib/utils';
+import config from '@/lib/config';
 
 const formSchema = z.object({
   username: z.string({ required_error: 'Username is required' }).refine(
@@ -75,7 +76,7 @@ export const UsernameForm = () => {
                   htmlFor="username"
                   className={cn(isUsernameFormLoading && 'cursor-not-allowed')}
                 >
-                  antisocial.com/
+                  {config.domain}/
                 </label>
                 <input
                   {...form.register('username')}

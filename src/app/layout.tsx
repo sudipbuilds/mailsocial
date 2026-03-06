@@ -10,8 +10,8 @@ const fontSans = Geist({
 });
 
 export const metadata: Metadata = {
-  title: 'Antisocial',
-  description: 'The most antisocial social media application',
+  title: 'MailSocial',
+  description: 'The most anti-social social network',
 };
 
 export default function RootLayout({
