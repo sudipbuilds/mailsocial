@@ -1,6 +1,7 @@
 'use client';
 
 import { z } from 'zod';
+import axios from 'axios';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMemo, useState, useTransition } from 'react';
@@ -21,6 +22,7 @@ type FormData = z.infer<typeof formSchema>;
 
 export const UsernameForm = () => {
   const [step, setStep] = useState<'username' | 'available'>('username');
+  const [checkoutError, setCheckoutError] = useState<string | null>(null);
   const [isTransitioning, startTransition] = useTransition();
 
   const form = useForm<FormData>({
@@ -35,23 +37,38 @@ export const UsernameForm = () => {
 
   async function handleSubmit({ username }: FormData) {
     try {
-      // check if username is available
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      setStep('available');
+      const res = await axios.post('/api/check-username', { username });
+      if (res.data.isAvailable) {
+        setStep('available');
+      } else {
+        form.setError('username', { message: 'Username not available. Try again.' });
+      }
     } catch (error) {
       console.error(error);
-      form.setError('username', { message: 'Username not available. Try again.' });
+      if (axios.isAxiosError(error) && error.response?.data?.error) {
+        form.setError('username', { message: error.response.data.error });
+      } else {
+        form.setError('username', { message: 'Username not available. Try again.' });
+      }
     }
   }
 
   function handleCheckout() {
     startTransition(async () => {
       try {
-        console.log('checkout started');
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        console.log('checkout finished');
+        const res = await axios.post('/api/checkout');
+        if (res.data.checkout_url) {
+          window.location.href = res.data.checkout_url;
+        } else {
+          setCheckoutError('Something went wrong. Please try again.');
+        }
       } catch (error) {
         console.error(error);
+        if (axios.isAxiosError(error) && error.response?.data?.error) {
+          setCheckoutError(error.response.data.error);
+        } else {
+          setCheckoutError('Something went wrong. Please try again.');
+        }
       }
     });
   }
@@ -105,6 +122,7 @@ export const UsernameForm = () => {
                 process.
               </p>
             </div>
+            {checkoutError && <p className="text-muted-foreground/75">{checkoutError}</p>}
             <button
               disabled={isTransitioning}
               onClick={handleCheckout}

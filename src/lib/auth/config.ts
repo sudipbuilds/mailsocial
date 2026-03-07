@@ -6,12 +6,12 @@ import { getDb } from '@/db';
 import config from '@/lib/config';
 import * as schema from '@/db/schema';
 
-export function createAuth(d1: D1Database) {
+export function createAuth() {
   return betterAuth({
     appName: config.appName,
     baseURL: config.baseURL,
     secret: config.auth.secret,
-    database: drizzleAdapter(getDb(d1), {
+    database: drizzleAdapter(getDb(), {
       provider: 'sqlite',
       schema,
       usePlural: true,
