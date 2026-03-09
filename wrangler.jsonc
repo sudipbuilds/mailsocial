@@ -19,7 +19,8 @@
 	"vars": {
 		"NEXT_PUBLIC_SITE_URL": "https://mailsocial.sudipbiswas.workers.dev",
 		"DODO_PAYMENTS_ENVIRONMENT": "test_mode",
-		"DODO_PAYMENTS_PRODUCT_ID": "pdt_0NZz88yBwNPNB4YKNXNLI"
+		"DODO_PAYMENTS_PRODUCT_ID": "pdt_0NZz88yBwNPNB4YKNXNLI",
+		"NEXT_PUBLIC_RESEND_DOMAIN": "sudipbiswas.dev"
 	},
 	"services": [
 		{
