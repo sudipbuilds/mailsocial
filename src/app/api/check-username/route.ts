@@ -1,9 +1,9 @@
 import { z } from 'zod';
-import { eq } from 'drizzle-orm';
+import { and, eq, isNull } from 'drizzle-orm';
 import { NextRequest, NextResponse } from 'next/server';
 
 import { getDb } from '@/db';
-import { users } from '@/db/schema';
+import { orders, users } from '@/db/schema';
 
 const usernameSchema = z.object({
   username: z.string({ required_error: 'Username is required' }).refine(
@@ -23,14 +23,25 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: validated.error.issues[0].message }, { status: 400 });
     }
 
+    const db = getDb();
     const { username } = validated.data;
 
-    const db = getDb();
-    const user = await db.query.users.findFirst({
-      where: eq(users.username, username),
-    });
+    const [existingUser, pendingOrder] = await Promise.all([
+      db.query.users.findFirst({
+        where: eq(users.username, username),
+      }),
+      db.query.orders.findFirst({
+        where: and(
+          eq(orders.customerUsername, username),
+          eq(orders.paymentStatus, 'succeeded'),
+          isNull(orders.refundedAt)
+        ),
+      }),
+    ]);
 
-    return NextResponse.json({ isAvailable: !user });
+    const isAvailable = !existingUser && !pendingOrder;
+
+    return NextResponse.json({ isAvailable });
   } catch (error) {
     console.error(error);
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });

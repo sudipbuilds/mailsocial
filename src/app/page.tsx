@@ -10,7 +10,7 @@ export default function Home() {
           </p>
         </div>
         <button className="px-4 py-2 rounded-full bg-neutral-200/75 text-sm font-medium outline-none inline-flex items-center justify-center">
-          Create account / $10
+          Create account / $14.99
         </button>
       </section>
     </main>

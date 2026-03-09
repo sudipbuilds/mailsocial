@@ -131,11 +131,11 @@ export const UsernameForm = () => {
                 isTransitioning && 'text-muted-foreground bg-neutral-200/50 cursor-not-allowed'
               )}
             >
-              Continue to payment / $10*
+              Continue to payment / $14.99*
             </button>
             <p className="text-muted-foreground/75 text-sm leading-tight">
-              *Forever Plan: Pay a one-time fee of $20 for ongoing access, ensuring you enjoy Daft
-              Social for as long as it lasts, without any additional costs.
+              *Forever Plan: Pay a one-time fee of $14.99 for ongoing access, ensuring you enjoy
+              Daft Social for as long as it lasts, without any additional costs.
             </p>
           </div>
         );

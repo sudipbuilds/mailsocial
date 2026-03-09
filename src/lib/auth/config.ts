@@ -16,6 +16,16 @@ export function createAuth() {
       schema,
       usePlural: true,
     }),
+    user: {
+      additionalFields: {
+        username: {
+          type: 'string',
+          required: true,
+          unique: true,
+          input: true,
+        },
+      },
+    },
     plugins: [
       emailOTP({
         async sendVerificationOTP(data, ctx) {

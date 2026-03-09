@@ -15,6 +15,20 @@
       "when": 1772810112723,
       "tag": "0001_fantastic_morph",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1772917233533,
+      "tag": "0002_silent_warhawk",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "6",
+      "when": 1773064588967,
+      "tag": "0003_huge_pepper_potts",
+      "breakpoints": true
     }
   ]
 }
