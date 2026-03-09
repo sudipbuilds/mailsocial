@@ -1,6 +1,12 @@
 import { eq } from 'drizzle-orm';
 import { NextRequest, NextResponse } from 'next/server';
 
+import {
+  sendPaymentSuccessEmail,
+  sendPaymentFailedEmail,
+  sendPaymentCancelledEmail,
+  sendRefundSuccessEmail,
+} from '@/lib/mail';
 import { getDb } from '@/db';
 import { createDodopayments } from '@/lib/dodopayments';
 import { orders, users, webhookEvents } from '@/db/schema';
@@ -86,10 +92,17 @@ export async function POST(request: NextRequest) {
       db.update(webhookEvents).set({ processed: true }).where(eq(webhookEvents.id, webhookId)),
     ]);
 
+    await sendPaymentSuccessEmail(
+      payload.customer.email,
+      payload.customer.name,
+      payload.invoice_url ?? null
+    );
+
     return NextResponse.json({ received: true });
   } else if (event.type === 'payment.failed') {
     const payload = event.data;
-    // TODO: Send email to user
+
+    await sendPaymentFailedEmail(payload.customer.email, payload.customer.name);
 
     await db
       .update(webhookEvents)
@@ -101,7 +114,9 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ received: true });
   } else if (event.type === 'payment.cancelled') {
     const payload = event.data;
-    // TODO: Schedule an email to user about the cancellation which will be sent after 24 hours
+
+    // TODO: Might schedule it to be sent after 24 hours
+    await sendPaymentCancelledEmail(payload.customer.email, payload.customer.name);
 
     await db
       .update(webhookEvents)
@@ -132,6 +147,13 @@ export async function POST(request: NextRequest) {
           db.update(webhookEvents).set({ processed: true }).where(eq(webhookEvents.id, webhookId)),
         ]);
       }
+
+      await sendRefundSuccessEmail(
+        order.customerEmail,
+        order.customerName,
+        order.amount,
+        order.currency
+      );
 
       return NextResponse.json({ received: true });
     }

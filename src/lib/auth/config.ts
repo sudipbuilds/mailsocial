@@ -5,6 +5,7 @@ import { drizzleAdapter } from 'better-auth/adapters/drizzle';
 import { getDb } from '@/db';
 import config from '@/lib/config';
 import * as schema from '@/db/schema';
+import { sendEmailVerificationMail } from '@/lib/mail';
 
 export function createAuth() {
   return betterAuth({
@@ -35,7 +36,9 @@ export function createAuth() {
     plugins: [
       emailOTP({
         async sendVerificationOTP(data, ctx) {
-          // TODO: Send verification OTP to email
+          if (data.type === 'sign-in') {
+            await sendEmailVerificationMail(data.email, data.otp);
+          }
         },
       }),
     ],
