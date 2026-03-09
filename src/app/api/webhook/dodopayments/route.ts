@@ -55,8 +55,9 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Username and product are required' }, { status: 400 });
     }
 
-    await db.transaction(async tx => {
-      await tx.insert(orders).values({
+    // ? Faah! D1 doesn't support SQL transactions - use batch() for atomic operations
+    await db.batch([
+      db.insert(orders).values({
         productId,
         webhookId,
         userId: null,
@@ -70,15 +71,14 @@ export async function POST(request: NextRequest) {
         currency: payload.currency as string,
         invoiceUrl: payload.invoice_url ?? null,
         paymentMethod: payload.payment_method ?? null,
-      });
-
-      await tx
+      }),
+      db
         .update(webhookEvents)
         .set({
           processed: true,
         })
-        .where(eq(webhookEvents.id, webhookId));
-    });
+        .where(eq(webhookEvents.id, webhookId)),
+    ]);
 
     return NextResponse.json({ received: true });
   } else if (event.type === 'payment.failed') {
@@ -113,26 +113,19 @@ export async function POST(request: NextRequest) {
     });
 
     if (order) {
-      await db.transaction(async tx => {
-        // * userId can be null if the user didn't sign up after the payment
-        if (order.userId) {
-          await tx.delete(users).where(eq(users.id, order.userId));
-        }
-
-        await tx
-          .update(orders)
-          .set({
-            refundedAt: new Date(),
-          })
-          .where(eq(orders.id, order.id));
-
-        await tx
-          .update(webhookEvents)
-          .set({
-            processed: true,
-          })
-          .where(eq(webhookEvents.id, webhookId));
-      });
+      // userId can be null if the user didn't sign up after the payment
+      if (order.userId) {
+        await db.batch([
+          db.delete(users).where(eq(users.id, order.userId)),
+          db.update(orders).set({ refundedAt: new Date() }).where(eq(orders.id, order.id)),
+          db.update(webhookEvents).set({ processed: true }).where(eq(webhookEvents.id, webhookId)),
+        ]);
+      } else {
+        await db.batch([
+          db.update(orders).set({ refundedAt: new Date() }).where(eq(orders.id, order.id)),
+          db.update(webhookEvents).set({ processed: true }).where(eq(webhookEvents.id, webhookId)),
+        ]);
+      }
 
       return NextResponse.json({ received: true });
     }
