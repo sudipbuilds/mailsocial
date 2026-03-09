@@ -19,7 +19,7 @@
 	"env": {
 		"production": {
 			"vars": {
-				"NEXT_PUBLIC_SITE_URL": "https://mailsocial.co",
+				"NEXT_PUBLIC_SITE_URL": "https://mailsocial.sudipbiswas.workers.dev",
 				"DODO_PAYMENTS_ENVIRONMENT": "live_mode",
 				"DODO_PAYMENTS_PRODUCT_ID": "pdt_0NZz88yBwNPNB4YKNXNLI"
 			}
