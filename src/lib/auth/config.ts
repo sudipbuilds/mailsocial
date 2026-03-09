@@ -24,6 +24,12 @@ export function createAuth() {
           unique: true,
           input: true,
         },
+        secretKey: {
+          type: 'string',
+          required: false,
+          unique: true,
+          input: true,
+        },
       },
     },
     plugins: [

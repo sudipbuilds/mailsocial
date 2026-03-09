@@ -1,6 +1,5 @@
 'use client';
 
-import { z } from 'zod';
 import axios from 'axios';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -8,25 +7,15 @@ import { useMemo, useState, useTransition } from 'react';
 
 import { cn } from '@/lib/utils';
 import config from '@/lib/config';
-
-const formSchema = z.object({
-  username: z.string({ required_error: 'Username is required' }).refine(
-    value => {
-      return /^[a-zA-Z0-9]+$/.test(value);
-    },
-    { message: 'Username not allowed. Try again.' }
-  ),
-});
-
-type FormData = z.infer<typeof formSchema>;
+import { type UsernameFormInput, usernameFormSchema } from '@/lib/validations';
 
 export const UsernameForm = () => {
   const [step, setStep] = useState<'username' | 'available'>('username');
   const [checkoutError, setCheckoutError] = useState<string | null>(null);
   const [isTransitioning, startTransition] = useTransition();
 
-  const form = useForm<FormData>({
-    resolver: zodResolver(formSchema),
+  const form = useForm<UsernameFormInput>({
+    resolver: zodResolver(usernameFormSchema),
     defaultValues: {
       username: '',
     },
@@ -35,7 +24,7 @@ export const UsernameForm = () => {
   const isUsernameFormLoading = form.formState.isSubmitting;
   const usernameFormErrors = form.formState.errors.username;
 
-  async function handleSubmit({ username }: FormData) {
+  async function handleSubmit({ username }: UsernameFormInput) {
     try {
       const res = await axios.post('/api/check-username', { username });
       if (res.data.isAvailable) {
