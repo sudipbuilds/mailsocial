@@ -1,0 +1,1 @@
+CREATE UNIQUE INDEX `orders_payment_id_unique` ON `orders` (`payment_id`);

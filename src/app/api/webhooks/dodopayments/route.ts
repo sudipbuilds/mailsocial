@@ -33,7 +33,7 @@ export async function POST(request: NextRequest) {
     where: eq(webhookEvents.id, webhookId),
   });
 
-  if (existingEvent?.processed) {
+  if (existingEvent) {
     return NextResponse.json({ received: true });
   }
 
@@ -55,6 +55,17 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Username and product are required' }, { status: 400 });
     }
 
+    const existingOrder = await db.query.orders.findFirst({
+      where: eq(orders.paymentId, payload.payment_id),
+    });
+    if (existingOrder) {
+      await db
+        .update(webhookEvents)
+        .set({ processed: true })
+        .where(eq(webhookEvents.id, webhookId));
+      return NextResponse.json({ received: true });
+    }
+
     // ? Faah! D1 doesn't support SQL transactions - use batch() for atomic operations
     await db.batch([
       db.insert(orders).values({
@@ -72,12 +83,7 @@ export async function POST(request: NextRequest) {
         invoiceUrl: payload.invoice_url ?? null,
         paymentMethod: payload.payment_method ?? null,
       }),
-      db
-        .update(webhookEvents)
-        .set({
-          processed: true,
-        })
-        .where(eq(webhookEvents.id, webhookId)),
+      db.update(webhookEvents).set({ processed: true }).where(eq(webhookEvents.id, webhookId)),
     ]);
 
     return NextResponse.json({ received: true });

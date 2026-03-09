@@ -98,7 +98,7 @@ export const orders = sqliteTable(
     customerEmail: text('customer_email').notNull(),
     customerName: text('customer_name').notNull(),
     customerUsername: text('customer_username').notNull(),
-    paymentId: text('payment_id').notNull(),
+    paymentId: text('payment_id').notNull().unique(),
     paymentStatus: text('payment_status').notNull(),
     amount: integer('amount', { mode: 'number' }).notNull(),
     currency: text('currency').notNull(),
