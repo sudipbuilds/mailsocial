@@ -16,24 +16,10 @@
 		// see https://opennext.js.org/cloudflare/howtos/image
 		"binding": "IMAGES"
 	},
-	"env": {
-		"production": {
-			"vars": {
-				"NEXT_PUBLIC_SITE_URL": "https://mailsocial.sudipbiswas.workers.dev",
-				"DODO_PAYMENTS_ENVIRONMENT": "live_mode",
-				"DODO_PAYMENTS_PRODUCT_ID": "pdt_0NZz88yBwNPNB4YKNXNLI"
-			}
-		},
-		"development": {
-			"vars": {
-				"NEXT_PUBLIC_SITE_URL": "http://localhost:3000",
-				"DODO_PAYMENTS_ENVIRONMENT": "test_mode",
-				"DODO_PAYMENTS_PRODUCT_ID": "pdt_0NZz88yBwNPNB4YKNXNLI"
-			}
-		}
-	},
 	"vars": {
-		"NEXT_PUBLIC_SITE_URL": "http://localhost:3000"
+		"NEXT_PUBLIC_SITE_URL": "https://mailsocial.sudipbiswas.workers.dev",
+		"DODO_PAYMENTS_ENVIRONMENT": "test_mode",
+		"DODO_PAYMENTS_PRODUCT_ID": "pdt_0NZz88yBwNPNB4YKNXNLI"
 	},
 	"services": [
 		{
