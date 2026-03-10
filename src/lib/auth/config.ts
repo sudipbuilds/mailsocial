@@ -2,17 +2,18 @@ import { betterAuth } from 'better-auth';
 import { emailOTP } from 'better-auth/plugins';
 import { drizzleAdapter } from 'better-auth/adapters/drizzle';
 
-import { getDb } from '@/db';
 import config from '@/lib/config';
+import { getD1Database } from '@/db';
 import * as schema from '@/db/schema';
 import { sendEmailVerificationMail } from '@/lib/mail';
 
-export function createAuth() {
+export async function createAuth() {
+  const db = await getD1Database();
   return betterAuth({
     appName: config.appName,
     baseURL: config.baseURL,
     secret: config.auth.secret,
-    database: drizzleAdapter(getDb(), {
+    database: drizzleAdapter(db, {
       provider: 'sqlite',
       schema,
       usePlural: true,

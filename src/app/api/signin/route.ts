@@ -1,7 +1,7 @@
 import { and, eq, isNull } from 'drizzle-orm';
 import { NextResponse, NextRequest } from 'next/server';
 
-import { getDb } from '@/db';
+import { getD1Database } from '@/db';
 import { orders, users } from '@/db/schema';
 import { createAuth } from '@/lib/auth/config';
 import { loginFormSchema } from '@/lib/validations';
@@ -28,8 +28,7 @@ export async function POST(request: NextRequest) {
     }
 
     const { email, otp } = validated.data;
-
-    const auth = createAuth();
+    const auth = await createAuth();
     const authenticated = await auth.api.getSession({
       headers: request.headers,
     });
@@ -37,7 +36,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Already logged in' }, { status: 400 });
     }
 
-    const db = getDb();
+    const db = await getD1Database();
 
     const existingUser = await db.query.users.findFirst({
       where: eq(users.email, email),

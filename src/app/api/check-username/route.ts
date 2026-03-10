@@ -2,7 +2,7 @@ import { z } from 'zod';
 import { and, eq, isNull } from 'drizzle-orm';
 import { NextRequest, NextResponse } from 'next/server';
 
-import { getDb } from '@/db';
+import { getD1Database } from '@/db';
 import { orders, users } from '@/db/schema';
 
 const usernameSchema = z.object({
@@ -23,7 +23,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: validated.error.issues[0].message }, { status: 400 });
     }
 
-    const db = getDb();
+    const db = await getD1Database();
     const { username } = validated.data;
 
     const [existingUser, pendingOrder] = await Promise.all([

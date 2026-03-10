@@ -4,8 +4,8 @@ import { getCloudflareContext } from '@opennextjs/cloudflare';
 
 import * as schema from './schema';
 
-export const getDb = cache(() => {
-  const { env } = getCloudflareContext();
+export const getD1Database = cache(async () => {
+  const { env } = await getCloudflareContext({ async: true });
 
   if (!env.D1_DATABASE) {
     throw new Error('D1 database not found');

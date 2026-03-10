@@ -7,7 +7,7 @@ import {
   sendPaymentCancelledEmail,
   sendRefundSuccessEmail,
 } from '@/lib/mail';
-import { getDb } from '@/db';
+import { getD1Database } from '@/db';
 import { createDodopayments } from '@/lib/dodopayments';
 import { orders, users, webhookEvents } from '@/db/schema';
 
@@ -32,7 +32,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Invalid signature' }, { status: 401 });
   }
 
-  const db = getDb();
+  const db = await getD1Database();
 
   // Idempotency: ignore if already processed
   const existingEvent = await db.query.webhookEvents.findFirst({
