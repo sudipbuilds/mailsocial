@@ -30,6 +30,13 @@
 			"service": "mailsocial"
 		}
 	],
+	"r2_buckets": [
+		{
+			"binding": "R2_BUCKET",
+			"bucket_name": "mailsocial-uploads",
+			"remote": true,
+		}
+	],
 	"d1_databases": [
     {
       "binding": "D1_DATABASE",

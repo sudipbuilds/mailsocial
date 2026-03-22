@@ -26,7 +26,7 @@ export const OrderStatus = ({
             </div>
             <Link
               href={`/signin?email=${email}`}
-              className="px-4 py-2 rounded-full bg-neutral-200/75 text-sm font-medium outline-none inline-flex items-center justify-center"
+              className="px-4 py-2 rounded-full bg-neutral-200/75 text-sm text-secondary-foreground outline-none inline-flex items-center justify-center"
             >
               Login to your account
             </Link>
@@ -44,7 +44,7 @@ export const OrderStatus = ({
             </div>
             <Link
               href="/signup"
-              className="px-4 py-2 rounded-full bg-neutral-200/75 text-sm font-medium outline-none inline-flex items-center justify-center"
+              className="px-4 py-2 rounded-full bg-neutral-200/75 text-sm text-secondary-foreground outline-none inline-flex items-center justify-center"
             >
               Go back and try again
             </Link>
@@ -62,7 +62,7 @@ export const OrderStatus = ({
             </div>
             <Link
               href="/"
-              className="px-4 py-2 rounded-full bg-neutral-200/75 text-sm font-medium outline-none inline-flex items-center justify-center"
+              className="px-4 py-2 rounded-full bg-neutral-200/75 text-sm text-secondary-foreground outline-none inline-flex items-center justify-center"
             >
               Go back to home
             </Link>

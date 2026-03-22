@@ -21,6 +21,7 @@ export const users = sqliteTable(
     name: text('name').notNull(),
     email: text('email').notNull().unique(),
     secretKey: text('secret_key'), // <secretKey>@mailsocial.co
+    bio: text('bio'),
     username: text('username').notNull().unique(),
     emailVerified: integer('email_verified', { mode: 'boolean' }).default(false).notNull(),
     ...timeStamps,

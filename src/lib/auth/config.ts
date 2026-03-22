@@ -32,6 +32,11 @@ export async function createAuth() {
           unique: true,
           input: true,
         },
+        bio: {
+          type: 'string',
+          required: false,
+          input: true,
+        },
       },
     },
     plugins: [
@@ -45,3 +50,6 @@ export async function createAuth() {
     ],
   });
 }
+
+export type Session = Awaited<ReturnType<typeof createAuth>>['$Infer']['Session']['session'];
+export type User = Awaited<ReturnType<typeof createAuth>>['$Infer']['Session']['user'];
