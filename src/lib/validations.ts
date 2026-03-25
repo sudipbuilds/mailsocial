@@ -36,3 +36,10 @@ export const settingsFormSchema = z.object({
 });
 
 export type SettingsFormInput = z.infer<typeof settingsFormSchema>;
+
+export const postFormSchema = z.object({
+  content: z.string().min(1, 'Content is required'),
+  secretKey: z.string().min(1, 'Secret key is required'),
+});
+
+export type PostFormInput = z.infer<typeof postFormSchema>;
