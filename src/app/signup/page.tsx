@@ -6,7 +6,7 @@ import { UsernameForm } from './components/username-form';
 export default async function Page() {
   const res = await currentUser();
   if (res?.user) {
-    return redirect('/app');
+    return redirect(`/${res.user.username}`);
   }
 
   return (

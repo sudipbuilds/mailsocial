@@ -78,8 +78,9 @@ export const SignInForm = ({ email }: { email?: string }) => {
 
   async function handleOtpSubmit({ otp }: OtpFormInput) {
     try {
-      await axios.post('/api/signin', { email: currentEmail, otp });
-      router.push('/app');
+      const response = await axios.post('/api/signin', { email: currentEmail, otp });
+      const { username } = response.data;
+      router.push(`/${username}`);
     } catch (error) {
       if (axios.isAxiosError(error)) {
         otpForm.setError('otp', {

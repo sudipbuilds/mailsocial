@@ -28,7 +28,7 @@ export async function createAuth() {
         },
         secretKey: {
           type: 'string',
-          required: false,
+          required: true,
           unique: true,
           input: true,
         },
@@ -36,6 +36,16 @@ export async function createAuth() {
           type: 'string',
           required: false,
           input: true,
+        },
+        isPrivate: {
+          type: 'boolean',
+          required: false,
+          input: false,
+        },
+        website: {
+          type: 'string',
+          required: false,
+          input: false,
         },
       },
     },
