@@ -8,7 +8,7 @@ import { postFormSchema } from '@/lib/validations';
 export async function POST(request: NextRequest) {
   try {
     const token = request.headers.get('Authorization')?.split('Bearer ')[1];
-    if (!token || token !== process.env.API_SECRET) {
+    if (!token || token !== process.env.EMAIL_WORKER_API_SECRET) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
