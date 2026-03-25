@@ -43,6 +43,13 @@
       "when": 1773156157932,
       "tag": "0005_outstanding_wasp",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "6",
+      "when": 1774419457064,
+      "tag": "0006_absurd_bug",
+      "breakpoints": true
     }
   ]
 }

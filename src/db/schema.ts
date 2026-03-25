@@ -17,12 +17,13 @@ export const users = sqliteTable(
     id: text('id')
       .primaryKey()
       .$defaultFn(() => crypto.randomUUID()),
-    image: text('image'),
     name: text('name').notNull(),
     email: text('email').notNull().unique(),
-    secretKey: text('secret_key'), // <secretKey>@mailsocial.co
+    secretKey: text('secret_key').notNull(),
     bio: text('bio'),
     username: text('username').notNull().unique(),
+    isPrivate: integer('is_private', { mode: 'boolean' }).default(false).notNull(),
+    website: text('website'),
     emailVerified: integer('email_verified', { mode: 'boolean' }).default(false).notNull(),
     ...timeStamps,
   },

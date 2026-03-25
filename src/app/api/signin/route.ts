@@ -4,6 +4,7 @@ import { NextResponse, NextRequest } from 'next/server';
 import { getD1Database } from '@/db';
 import { orders, users } from '@/db/schema';
 import { createAuth } from '@/lib/auth/config';
+import { generateSecretKey } from '@/lib/generate-key';
 import { loginFormSchema } from '@/lib/validations';
 
 function createResponseWithCookies(
@@ -49,7 +50,10 @@ export async function POST(request: NextRequest) {
         asResponse: true,
       });
 
-      return createResponseWithCookies({ message: 'Logged in successfully' }, authResponse);
+      return createResponseWithCookies(
+        { message: 'Logged in successfully', username: existingUser.username },
+        authResponse
+      );
     }
 
     const existingOrder = await db.query.orders.findFirst({
@@ -62,6 +66,8 @@ export async function POST(request: NextRequest) {
     });
 
     if (existingOrder) {
+      const secretKey = generateSecretKey(existingOrder.customerUsername);
+
       const authResponse = await auth.api.signInEmailOTP({
         headers: request.headers,
         body: {
@@ -69,6 +75,7 @@ export async function POST(request: NextRequest) {
           otp,
           name: existingOrder.customerName,
           username: existingOrder.customerUsername,
+          secretKey,
         },
         asResponse: true,
       });
@@ -81,7 +88,10 @@ export async function POST(request: NextRequest) {
           .where(eq(orders.id, existingOrder.id));
       }
 
-      return createResponseWithCookies({ message: 'Logged in successfully' }, authResponse);
+      return createResponseWithCookies(
+        { message: 'Logged in successfully', username: existingOrder.customerUsername },
+        authResponse
+      );
     }
 
     return NextResponse.json(

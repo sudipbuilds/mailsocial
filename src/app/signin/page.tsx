@@ -12,7 +12,7 @@ export default async function LoginPage({
 
   const res = await currentUser();
   if (res?.user) {
-    redirect('/app');
+    redirect(`/${res.user.username}`);
   }
 
   return (
