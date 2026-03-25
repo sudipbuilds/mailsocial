@@ -10,8 +10,7 @@ export default {
   },
   resend: {
     apiKey: process.env.RESEND_API_KEY as string,
-    fromNoReply: `no-reply@${process.env.NEXT_PUBLIC_RESEND_DOMAIN as string}`,
-    fromSupport: `sudip@${process.env.NEXT_PUBLIC_RESEND_DOMAIN as string}`,
+    from: `MailSocial <mailsocial@${process.env.NEXT_PUBLIC_RESEND_DOMAIN as string}>`,
     domain: process.env.NEXT_PUBLIC_RESEND_DOMAIN as string,
   },
   auth: {

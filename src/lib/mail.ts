@@ -8,9 +8,8 @@ const getFirstName = (fullName: string) => fullName.split(' ')[0];
 
 export const sendEmailVerificationMail = async (email: string, otp: string) => {
   await resend.emails.send({
-    from: config.resend.fromNoReply,
+    from: config.resend.from,
     to: email,
-    replyTo: config.resend.fromSupport,
     subject: `Your code: ${otp}`,
     html: `
       <p>Here's your sign-in code:</p>
@@ -28,10 +27,9 @@ export const sendPaymentSuccessEmail = async (
   invoiceUrl: string | null
 ) => {
   await resend.emails.send({
-    from: config.resend.fromNoReply,
+    from: config.resend.from,
     to: email,
     subject: "You're all set - Welcome to MailSocial",
-    replyTo: config.resend.fromSupport,
     html: `
       <p>Hi ${getFirstName(customerName)},</p>
 
@@ -48,10 +46,9 @@ export const sendPaymentSuccessEmail = async (
 
 export const sendPaymentFailedEmail = async (email: string, customerName: string) => {
   await resend.emails.send({
-    from: config.resend.fromNoReply,
+    from: config.resend.from,
     to: email,
     subject: "Your payment didn't go through",
-    replyTo: config.resend.fromSupport,
     html: `
       <p>Hi ${getFirstName(customerName)},</p>
 
@@ -66,7 +63,7 @@ export const sendPaymentFailedEmail = async (email: string, customerName: string
 
 export const sendPaymentCancelledEmail = async (email: string, customerName: string) => {
   await resend.emails.send({
-    from: config.resend.fromSupport,
+    from: config.resend.from,
     to: email,
     subject: "Your payment didn't go through",
     html: `
@@ -93,10 +90,9 @@ export const sendRefundSuccessEmail = async (
   }).format(amount / 100);
 
   await resend.emails.send({
-    from: config.resend.fromNoReply,
+    from: config.resend.from,
     to: email,
     subject: 'Your refund is on the way',
-    replyTo: config.resend.fromSupport,
     html: `
       <p>Hi ${getFirstName(customerName)},</p>
 
