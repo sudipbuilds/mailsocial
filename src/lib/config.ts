@@ -1,6 +1,6 @@
 export default {
   appName: 'MailSocial',
-  domain: 'mailsocial.co',
+  domain: 'mailsocial.sudipbiswas.dev',
   baseURL: process.env.NEXT_PUBLIC_SITE_URL as string,
   dodopayments: {
     bearerToken: process.env.DODOPAYMENTS_BEARER_TOKEN as string,

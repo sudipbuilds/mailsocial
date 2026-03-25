@@ -16,6 +16,12 @@
 		// see https://opennext.js.org/cloudflare/howtos/image
 		"binding": "IMAGES"
 	},
+	"routes": [
+		{
+			"pattern": "mailsocial.sudipbiswas.dev",
+      "custom_domain": true
+		}
+	],
 	"vars": {
 		"NEXT_PUBLIC_SITE_URL": "https://mailsocial.sudipbiswas.workers.dev",
 		"DODO_PAYMENTS_ENVIRONMENT": "test_mode",
