@@ -3,6 +3,8 @@
 import { useEffect, useRef } from 'react';
 import { useInfiniteQuery } from '@tanstack/react-query';
 
+import { SecretEmailCard } from '@/components/secret-email-card';
+
 interface Post {
   id: string;
   content: string;
@@ -20,6 +22,7 @@ interface UserResponse {
   posts: Post[];
   nextCursor: string | null;
   isOwnProfile: boolean;
+  secretKey?: string;
 }
 
 async function fetchUserPosts(username: string, cursor?: string): Promise<UserResponse> {
@@ -81,6 +84,17 @@ export function PostsList({ username }: { username: string }) {
   const allPosts = data?.pages.flatMap(page => page.posts) ?? [];
 
   if (allPosts.length === 0) {
+    const isOwnProfile = data?.pages?.[0]?.isOwnProfile;
+    const secretKey = data?.pages?.[0]?.secretKey;
+
+    if (isOwnProfile && secretKey) {
+      return (
+        <div className="space-y-4">
+          <SecretEmailCard secretKey={secretKey} />
+          <p className="text-neutral-500">No posts yet.</p>
+        </div>
+      );
+    }
     return <p className="text-neutral-500">No posts yet.</p>;
   }
 

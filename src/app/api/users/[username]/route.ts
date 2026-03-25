@@ -28,6 +28,7 @@ export async function GET(
         website: true,
         username: true,
         isPrivate: true,
+        secretKey: true,
       },
     });
 
@@ -83,6 +84,7 @@ export async function GET(
       posts: postsToReturn,
       nextCursor,
       isOwnProfile,
+      secretKey: isOwnProfile ? user.secretKey : undefined,
     });
   } catch (error) {
     console.error(error);

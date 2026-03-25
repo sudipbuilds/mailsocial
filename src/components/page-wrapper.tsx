@@ -11,7 +11,7 @@ export function PageWrapper({ children, spacing = 'lg', outsideContent }: PageWr
     <main className="min-h-dvh bg-neutral-50">
       <section
         className={cn(
-          'px-6 py-16 sm:py-24 md:py-36 xl:py-40 max-w-md mx-auto *:leading-tight *:tracking-tight',
+          'px-6 py-16 sm:py-24 md:py-28 xl:py-32 max-w-md mx-auto *:leading-tight *:tracking-tight',
           spacing === 'sm' && 'space-y-8',
           spacing === 'md' && 'space-y-12',
           spacing === 'lg' && 'space-y-16'
