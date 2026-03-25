@@ -126,10 +126,24 @@ export const webhookEvents = sqliteTable('webhook_events', {
   ...timeStamps,
 });
 
+export const posts = sqliteTable(
+  'posts',
+  {
+    id: text('id')
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
+    userId: text('user_id').references(() => users.id, { onDelete: 'cascade' }),
+    content: text('content').notNull(),
+    ...timeStamps,
+  },
+  table => [index('posts_userId_idx').on(table.userId)]
+);
+
 export const usersRelations = relations(users, ({ many }) => ({
   sessions: many(sessions),
   accounts: many(accounts),
   orders: many(orders),
+  posts: many(posts),
 }));
 
 export const sessionsRelations = relations(sessions, ({ one }) => ({
@@ -153,6 +167,13 @@ export const ordersRelations = relations(orders, ({ one }) => ({
   }),
 }));
 
+export const postsRelations = relations(posts, ({ one }) => ({
+  user: one(users, {
+    fields: [posts.userId],
+    references: [users.id],
+  }),
+}));
+
 export type User = typeof users.$inferSelect;
 export type UserInsert = typeof users.$inferInsert;
 
@@ -170,3 +191,6 @@ export type OrderInsert = typeof orders.$inferInsert;
 
 export type WebhookEvent = typeof webhookEvents.$inferSelect;
 export type WebhookEventInsert = typeof webhookEvents.$inferInsert;
+
+export type Post = typeof posts.$inferSelect;
+export type PostInsert = typeof posts.$inferInsert;
