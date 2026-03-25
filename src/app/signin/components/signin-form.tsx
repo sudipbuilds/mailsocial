@@ -105,7 +105,7 @@ export const SignInForm = ({ email }: { email?: string }) => {
     switch (step) {
       case 'email':
         return (
-          <div className="space-y-6">
+          <div className="space-y-8">
             <p>Enter your email address to sign in.</p>
             <form className="space-y-6" onSubmit={emailForm.handleSubmit(handleEmailSubmit)}>
               {(emailFormErrors || sendError) && (
@@ -132,7 +132,7 @@ export const SignInForm = ({ email }: { email?: string }) => {
         );
       case 'otp':
         return (
-          <div className="space-y-6">
+          <div className="space-y-8">
             <p>Enter the 6-digit code sent to {maskEmail(currentEmail)}</p>
             <form className="space-y-6" onSubmit={otpForm.handleSubmit(handleOtpSubmit)}>
               {(otpFormErrors || sendError) && (

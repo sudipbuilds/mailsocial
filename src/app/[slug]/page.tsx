@@ -3,6 +3,7 @@ import { headers } from 'next/headers';
 import { notFound } from 'next/navigation';
 import { dehydrate, HydrationBoundary, QueryClient } from '@tanstack/react-query';
 
+import { PageWrapper } from '@/components/page-wrapper';
 import { PostsList } from './components/posts-list';
 import { UserMenu } from './components/user-menu';
 
@@ -54,33 +55,32 @@ export default async function UserProfilePage({ params }: { params: Promise<{ sl
 
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
-      <main className="min-h-dvh bg-neutral-50">
-        <section className="space-y-16 px-6 py-32 md:py-36 xl:py-40 max-w-md mx-auto *:leading-tight *:tracking-tight">
-          <header className="space-y-4 *:leading-tight">
-            <h1 className="text-lg">{user.name}</h1>
-            <div className="space-y-1">
-              {user.bio && <p className="text-neutral-500">{user.bio}</p>}
-              {user.website && (
-                <Link
-                  href={user.website.startsWith('http') ? user.website : `https://${user.website}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-neutral-500 hover:underline"
-                >
-                  {user.website.replace(/^https?:\/\//, '')}
-                </Link>
-              )}
-            </div>
-          </header>
+      <PageWrapper
+        outsideContent={isOwnProfile && <UserMenu name={user.name} username={user.username} />}
+      >
+        <header className="space-y-4 *:leading-tight">
+          <h1 className="text-lg">{user.name}</h1>
+          <div className="space-y-1">
+            {user.bio && <p className="text-neutral-500">{user.bio}</p>}
+            {user.website && (
+              <Link
+                href={user.website.startsWith('http') ? user.website : `https://${user.website}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-neutral-500 hover:underline"
+              >
+                {user.website.replace(/^https?:\/\//, '')}
+              </Link>
+            )}
+          </div>
+        </header>
 
-          {user.isPrivate && !isOwnProfile ? (
-            <p className="text-neutral-500">This account is private.</p>
-          ) : (
-            <PostsList username={user.username} />
-          )}
-        </section>
-        {isOwnProfile && <UserMenu name={user.name} username={user.username} />}
-      </main>
+        {user.isPrivate && !isOwnProfile ? (
+          <p className="text-neutral-500">This account is private.</p>
+        ) : (
+          <PostsList username={user.username} />
+        )}
+      </PageWrapper>
     </HydrationBoundary>
   );
 }

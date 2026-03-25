@@ -1,5 +1,6 @@
 import { notFound } from 'next/navigation';
 
+import { PageWrapper } from '@/components/page-wrapper';
 import { OrderStatus } from './components/order-status';
 
 export default async function OrderStatusPage({
@@ -13,10 +14,8 @@ export default async function OrderStatusPage({
   }
 
   return (
-    <main className="min-h-dvh bg-neutral-50">
-      <section className="px-6 py-32 md:py-36 xl:py-40 max-w-md mx-auto *:leading-tight *:tracking-tight">
-        <OrderStatus status={status} email={email} payment_id={payment_id} />
-      </section>
-    </main>
+    <PageWrapper>
+      <OrderStatus status={status} email={email} payment_id={payment_id} />
+    </PageWrapper>
   );
 }
