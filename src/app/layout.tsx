@@ -3,6 +3,7 @@ import { Geist } from 'next/font/google';
 
 import './globals.css';
 import { cn } from '@/lib/utils';
+import { Providers } from '@/components/providers';
 
 const fontSans = Geist({
   variable: '--font-geist',
@@ -24,7 +25,9 @@ export default function RootLayout({
       <head>
         <link rel="icon" href="/favicon.svg" type="image/svg+xml"></link>
       </head>
-      <body className={cn(fontSans.variable, 'font-sans antialiased')}>{children}</body>
+      <body className={cn(fontSans.variable, 'font-sans antialiased')}>
+        <Providers>{children}</Providers>
+      </body>
     </html>
   );
 }
