@@ -40,10 +40,10 @@ export function SettingsForm({ defaultValues }: { defaultValues: Partial<User> }
   }
 
   return (
-    <form className="space-y-6" onSubmit={form.handleSubmit(handleSubmit)}>
+    <form className="space-y-8" onSubmit={form.handleSubmit(handleSubmit)}>
       {errors.root && <p className="text-muted-foreground/75">{errors.root.message}</p>}
 
-      <div className="space-y-4">
+      <div className="space-y-6">
         <div className="space-y-2">
           <label htmlFor="name" className="text-sm text-muted-foreground">
             Name

@@ -66,7 +66,7 @@ export const UsernameForm = () => {
     switch (step) {
       case 'username':
         return (
-          <div className="space-y-6">
+          <div className="space-y-8">
             <p>Create your username. Use only letters and numbers, then hit Enter to submit.</p>
             <form className="space-y-6" onSubmit={form.handleSubmit(handleSubmit)}>
               {usernameFormErrors && (
@@ -102,7 +102,7 @@ export const UsernameForm = () => {
         );
       case 'available':
         return (
-          <div className="space-y-8">
+          <div className="space-y-12">
             <div className="space-y-6">
               <p>Your username is available:</p>
               <p>{form.getValues('username')}</p>
