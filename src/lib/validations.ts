@@ -27,3 +27,12 @@ export type EmailFormInput = z.infer<typeof emailFormSchema>;
 
 export const otpFormSchema = loginFormSchema.pick({ otp: true });
 export type OtpFormInput = z.infer<typeof otpFormSchema>;
+
+export const settingsFormSchema = z.object({
+  name: z.string().min(1, 'Name is required'),
+  bio: z.string().optional(),
+  website: z.string().url('Invalid URL').or(z.literal('')).optional(),
+  isPrivate: z.boolean(),
+});
+
+export type SettingsFormInput = z.infer<typeof settingsFormSchema>;
