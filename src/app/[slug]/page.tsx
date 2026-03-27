@@ -3,6 +3,7 @@ import { headers } from 'next/headers';
 import { notFound } from 'next/navigation';
 import { dehydrate, HydrationBoundary, QueryClient } from '@tanstack/react-query';
 
+import config from '@/lib/config';
 import { PageWrapper } from '@/components/page-wrapper';
 import { PostsList } from './components/posts-list';
 import { UserMenu } from './components/user-menu';
@@ -21,7 +22,7 @@ interface UserResponse {
 }
 
 async function fetchUserData(username: string, cookie: string): Promise<UserResponse> {
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
+  const baseUrl = config.baseURL || 'http://localhost:3000';
   const res = await fetch(`${baseUrl}/api/users/${username}`, {
     headers: { cookie },
   });

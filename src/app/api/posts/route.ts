@@ -1,6 +1,7 @@
 import { eq } from 'drizzle-orm';
 import { NextRequest, NextResponse } from 'next/server';
 
+import config from '@/lib/config';
 import { getD1Database } from '@/db';
 import { posts, users } from '@/db/schema';
 import { postFormSchema } from '@/lib/validations';
@@ -8,7 +9,7 @@ import { postFormSchema } from '@/lib/validations';
 export async function POST(request: NextRequest) {
   try {
     const token = request.headers.get('Authorization')?.split('Bearer ')[1];
-    if (!token || token !== process.env.EMAIL_WORKER_API_SECRET) {
+    if (!token || token !== config.emailWorkerAPISecret) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 

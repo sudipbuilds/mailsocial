@@ -2,6 +2,7 @@ export default {
   appName: 'MailSocial',
   domain: 'mailsocial.sudipbiswas.dev',
   baseURL: process.env.NEXT_PUBLIC_SITE_URL as string,
+  emailWorkerAPISecret: process.env.EMAIL_WORKER_API_SECRET as string,
   dodopayments: {
     bearerToken: process.env.DODOPAYMENTS_BEARER_TOKEN as string,
     environment: process.env.DODO_PAYMENTS_ENVIRONMENT as 'test_mode' | 'live_mode',
