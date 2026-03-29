@@ -1,23 +1,14 @@
-import { z } from 'zod';
 import { and, eq, isNull } from 'drizzle-orm';
 import { NextRequest, NextResponse } from 'next/server';
 
 import { getD1Database } from '@/db';
 import { orders, users } from '@/db/schema';
-
-const usernameSchema = z.object({
-  username: z.string({ required_error: 'Username is required' }).refine(
-    value => {
-      return /^[a-zA-Z0-9]+$/.test(value);
-    },
-    { message: 'Username not allowed. Try again.' }
-  ),
-});
+import { usernameFormSchema } from '@/lib/validations';
 
 export async function POST(request: NextRequest) {
   try {
     const reqBody = await request.json();
-    const validated = usernameSchema.safeParse(reqBody);
+    const validated = usernameFormSchema.safeParse(reqBody);
     if (!validated.success) {
       console.error(validated.error.issues[0].message);
       return NextResponse.json({ error: validated.error.issues[0].message }, { status: 400 });
