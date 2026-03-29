@@ -1,7 +1,14 @@
 export default {
   appName: 'MailSocial',
+  description: 'A place for your thoughts. Powered by email.',
+  author: {
+    name: 'Sudip Biswas',
+    url: 'https://sudipbiswas.me',
+    username: 'sudipbuilds',
+  },
+  ogImage: '/opengraph-image.png',
   domain: 'mailsocial.sudipbiswas.dev',
-  baseURL: process.env.NEXT_PUBLIC_SITE_URL as string,
+  url: process.env.NEXT_PUBLIC_SITE_URL as string,
   emailWorkerAPISecret: process.env.EMAIL_WORKER_API_SECRET as string,
   dodopayments: {
     bearerToken: process.env.DODOPAYMENTS_BEARER_TOKEN as string,

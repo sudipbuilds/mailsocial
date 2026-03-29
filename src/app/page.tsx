@@ -97,7 +97,7 @@ export default function Home() {
           <div className="space-y-1">
             <p>Q: What if I lose my MailSocial email address</p>
             <p className="text-muted-foreground">
-              A: Check your sent emails if you’ve posted before. Or log in and copy it again from
+              A: Check your sent emails if you've posted before. Or log in and copy it again from
               settings.
             </p>
           </div>

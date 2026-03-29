@@ -22,7 +22,7 @@ interface UserResponse {
 }
 
 async function fetchUserData(username: string, cookie: string): Promise<UserResponse> {
-  const baseUrl = config.baseURL || 'http://localhost:3000';
+  const baseUrl = config.url || 'http://localhost:3000';
   const res = await fetch(`${baseUrl}/api/users/${username}`, {
     headers: { cookie },
   });
