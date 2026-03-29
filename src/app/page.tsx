@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 
 import { PageWrapper } from '@/components/page-wrapper';
 
@@ -29,6 +30,18 @@ export default function Home() {
           </a>
         </div>
         <p className="text-muted-foreground/75 text-sm">Forever Plan: Pay a one-time fee of $15.</p>
+      </div>
+
+      {/* Mockup Section */}
+      <div className="relative h-120">
+        <Image
+          src="/mockup-vertical.webp"
+          alt="MailSocial mobile view"
+          className="object-left object-contain"
+          quality={100}
+          priority
+          fill
+        />
       </div>
 
       {/* What is MailSocial Section */}
