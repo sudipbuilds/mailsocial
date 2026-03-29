@@ -1,12 +1,16 @@
 import { z } from 'zod';
 
 export const usernameFormSchema = z.object({
-  username: z.string({ required_error: 'Username is required' }).refine(
-    value => {
-      return /^[a-zA-Z0-9]+$/.test(value);
-    },
-    { message: 'Username not allowed. Try again.' }
-  ),
+  username: z
+    .string({ required_error: 'Username is required' })
+    .min(3, 'Too short.')
+    .max(16, 'Too long.')
+    .refine(
+      value => {
+        return /^[a-zA-Z0-9]+$/.test(value);
+      },
+      { message: 'Username not allowed. Try again.' }
+    ),
 });
 
 export type UsernameFormInput = z.infer<typeof usernameFormSchema>;

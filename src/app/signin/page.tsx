@@ -4,6 +4,11 @@ import { currentUser } from '@/lib/current-user';
 import { PageWrapper } from '@/components/page-wrapper';
 import { SignInForm } from './components/signin-form';
 
+export const metadata = {
+  title: 'Sign in',
+  description: 'Sign in to MailSocial',
+};
+
 export default async function LoginPage({
   searchParams,
 }: {

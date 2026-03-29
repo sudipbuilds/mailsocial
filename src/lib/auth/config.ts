@@ -11,7 +11,7 @@ export async function createAuth() {
   const db = await getD1Database();
   return betterAuth({
     appName: config.appName,
-    baseURL: config.baseURL,
+    baseURL: config.url,
     secret: config.auth.secret,
     database: drizzleAdapter(db, {
       provider: 'sqlite',

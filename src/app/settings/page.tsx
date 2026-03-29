@@ -6,6 +6,11 @@ import { UserMenu } from '@/app/[slug]/components/user-menu';
 import { SettingsForm } from './components/settings-form';
 import { SecretEmailCard } from '@/components/secret-email-card';
 
+export const metadata = {
+  title: 'Settings',
+  description: 'Manage your MailSocial settings',
+};
+
 export default async function SettingsPage() {
   const session = await currentUser();
   if (!session?.user) {

@@ -14,7 +14,7 @@ export async function POST(request: NextRequest) {
           quantity: 1,
         },
       ],
-      return_url: `${config.baseURL}/order/status`,
+      return_url: `${config.url}/order/status`,
       custom_fields: [
         {
           field_type: 'text',

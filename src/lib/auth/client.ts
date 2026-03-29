@@ -5,6 +5,6 @@ import config from '@/lib/config';
 import { createAuth } from './config';
 
 export const authClient = createAuthClient({
-  baseURL: config.baseURL,
+  baseURL: config.url,
   plugins: [emailOTPClient(), inferAdditionalFields<ReturnType<typeof createAuth>>()],
 });
