@@ -4,10 +4,11 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getD1Database } from '@/db';
 import { posts, users } from '@/db/schema';
 import { currentUser } from '@/lib/current-user';
+import { withRateLimit } from '@/lib/rate-limit/with-rate-limit';
 
 const DEFAULT_LIMIT = 10;
 
-export async function GET(
+async function userProfileHandler(
   request: NextRequest,
   { params }: { params: Promise<{ username: string }> }
 ) {
@@ -91,3 +92,7 @@ export async function GET(
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }
+
+export const GET = withRateLimit(userProfileHandler, {
+  routeId: 'GET:/api/users/[username]',
+});

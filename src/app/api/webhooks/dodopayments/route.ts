@@ -10,8 +10,9 @@ import {
 import { getD1Database } from '@/db';
 import { createDodopayments } from '@/lib/dodopayments';
 import { orders, users, webhookEvents } from '@/db/schema';
+import { withRateLimit } from '@/lib/rate-limit/with-rate-limit';
 
-export async function POST(request: NextRequest) {
+async function dodoWebhookHandler(request: NextRequest) {
   const raw = await request.text();
   const webhookId = request.headers.get('webhook-id')!;
   const webhookSignature = request.headers.get('webhook-signature')!;
@@ -165,3 +166,7 @@ export async function POST(request: NextRequest) {
 
   return NextResponse.json({ received: true, unhandled: event.type });
 }
+
+export const POST = withRateLimit(dodoWebhookHandler, {
+  routeId: 'POST:/api/webhooks/dodopayments',
+});

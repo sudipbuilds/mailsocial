@@ -5,8 +5,9 @@ import config from '@/lib/config';
 import { getD1Database } from '@/db';
 import { posts, users } from '@/db/schema';
 import { postFormSchema } from '@/lib/validations';
+import { withRateLimit } from '@/lib/rate-limit/with-rate-limit';
 
-export async function POST(request: NextRequest) {
+async function postsHandler(request: NextRequest) {
   try {
     const token = request.headers.get('Authorization')?.split('Bearer ')[1];
     if (!token || token !== config.emailWorkerAPISecret) {
@@ -40,3 +41,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }
+
+export const POST = withRateLimit(postsHandler, {
+  routeId: 'POST:/api/posts',
+});

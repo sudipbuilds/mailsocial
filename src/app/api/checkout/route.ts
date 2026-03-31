@@ -2,8 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 
 import config from '@/lib/config';
 import { createDodopayments } from '@/lib/dodopayments';
+import { withRateLimit } from '@/lib/rate-limit/with-rate-limit';
 
-export async function POST(request: NextRequest) {
+async function checkoutHandler(request: NextRequest) {
   try {
     const dodoPayments = createDodopayments();
 
@@ -31,3 +32,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }
+
+export const POST = withRateLimit(checkoutHandler, {
+  routeId: 'POST:/api/checkout',
+});

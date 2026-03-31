@@ -1,12 +1,13 @@
 import { eq } from 'drizzle-orm';
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 
 import { getD1Database } from '@/db';
 import { users } from '@/db/schema';
 import { currentUser } from '@/lib/current-user';
 import { settingsFormSchema } from '@/lib/validations';
+import { withRateLimit } from '@/lib/rate-limit/with-rate-limit';
 
-export async function PATCH(request: Request) {
+async function settingsHandler(request: NextRequest) {
   try {
     const session = await currentUser();
     if (!session?.user) {
@@ -38,3 +39,7 @@ export async function PATCH(request: Request) {
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }
+
+export const PATCH = withRateLimit(settingsHandler, {
+  routeId: 'PATCH:/api/settings',
+});

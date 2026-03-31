@@ -6,6 +6,7 @@ import { orders, users } from '@/db/schema';
 import { createAuth } from '@/lib/auth/config';
 import { generateSecretKey } from '@/lib/generate-key';
 import { loginFormSchema } from '@/lib/validations';
+import { withRateLimit } from '@/lib/rate-limit/with-rate-limit';
 
 function createResponseWithCookies(
   data: object,
@@ -20,7 +21,7 @@ function createResponseWithCookies(
   return response;
 }
 
-export async function POST(request: NextRequest) {
+async function signinHandler(request: NextRequest) {
   try {
     const reqBody = await request.json();
     const validated = loginFormSchema.safeParse(reqBody);
@@ -106,3 +107,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }
+
+export const POST = withRateLimit(signinHandler, {
+  routeId: 'POST:/api/signin',
+});

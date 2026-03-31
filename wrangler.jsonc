@@ -45,6 +45,12 @@
 			"remote": true
     }
   ],
+	"kv_namespaces": [
+		{
+			"binding": "KV",
+			"id": "21bbca9726214d0094703c9f4bf09187"
+		}
+	],
 	"observability": {
 		"enabled": true
 	}

@@ -8,7 +8,7 @@ export default {
   },
   ogImage: '/opengraph-image.png',
   domain: 'mailsocial.sudipbiswas.dev',
-  url: process.env.NEXT_PUBLIC_SITE_URL as string || 'https://mailsocial.sudipbiswas.dev',
+  url: (process.env.NEXT_PUBLIC_SITE_URL as string) || 'https://mailsocial.sudipbiswas.dev',
   emailWorkerAPISecret: process.env.EMAIL_WORKER_API_SECRET as string,
   dodopayments: {
     bearerToken: process.env.DODOPAYMENTS_BEARER_TOKEN as string,
