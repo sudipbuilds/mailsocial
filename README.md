@@ -13,7 +13,7 @@ MailSocial lets you post by sending emails. Send an email to your unique address
 - **Authentication**: Better Auth (passwordless OTP via email)
 - **Email Service**: Resend (transactional emails & OTP delivery)
 - **Email Routing**: Cloudflare Email Worker
-- **Payments**: DodoPayments (one-time $15 Forever Plan)
+- **Payments**: DodoPayments (one-time $10 Forever Plan)
 - **UI**: Tailwind CSS + Radix UI
 
 ## How It Works
@@ -96,7 +96,7 @@ pnpm run deploy
 
 - Email-to-post publishing (subject line only)
 - Passwordless authentication with OTP
-- One-time payment ($15 Forever Plan)
+- One-time payment ($10 Forever Plan)
 - Public or private profiles
 - Username-based URLs
 - Webhook-driven order processing

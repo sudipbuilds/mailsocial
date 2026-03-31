@@ -29,7 +29,7 @@ export default function Home() {
             Learn more
           </a>
         </div>
-        <p className="text-muted-foreground/75 text-sm">Forever Plan: Pay a one-time fee of $15.</p>
+        <p className="text-muted-foreground/75 text-sm">Forever Plan: Pay a one-time fee of $10.</p>
       </div>
 
       {/* Mockup Section */}
