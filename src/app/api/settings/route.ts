@@ -1,23 +1,24 @@
 import { eq } from 'drizzle-orm';
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 
 import { getD1Database } from '@/db';
 import { users } from '@/db/schema';
 import { currentUser } from '@/lib/current-user';
 import { settingsFormSchema } from '@/lib/validations';
-import { withRateLimit } from '@/lib/rate-limit/with-rate-limit';
+import { withRateLimit } from '@/lib/rateLimit/withRateLimit';
+import { withApiContext } from '@/lib/api/withApiContext';
 
-async function settingsHandler(request: NextRequest) {
-  try {
+export const PATCH = withRateLimit(
+  withApiContext(async (request, ctx) => {
     const session = await currentUser();
     if (!session?.user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return ctx.error.unauthorized();
     }
 
     const reqBody = await request.json();
     const validated = settingsFormSchema.safeParse(reqBody);
     if (!validated.success) {
-      return NextResponse.json({ error: validated.error.issues[0].message }, { status: 400 });
+      return ctx.error.badRequest(validated.error.issues[0].message);
     }
 
     const { name, bio, website, isPrivate } = validated.data;
@@ -34,12 +35,8 @@ async function settingsHandler(request: NextRequest) {
       .where(eq(users.id, session.user.id));
 
     return NextResponse.json({ message: 'Settings updated successfully' });
-  } catch (error) {
-    console.error(error);
-    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+  }),
+  {
+    routeId: 'PATCH:/api/settings',
   }
-}
-
-export const PATCH = withRateLimit(settingsHandler, {
-  routeId: 'PATCH:/api/settings',
-});
+);

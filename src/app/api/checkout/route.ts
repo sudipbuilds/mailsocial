@@ -1,11 +1,12 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 
 import config from '@/lib/config';
 import { createDodopayments } from '@/lib/dodopayments';
-import { withRateLimit } from '@/lib/rate-limit/with-rate-limit';
+import { withRateLimit } from '@/lib/rateLimit/withRateLimit';
+import { withApiContext } from '@/lib/api/withApiContext';
 
-async function checkoutHandler(request: NextRequest) {
-  try {
+export const POST = withRateLimit(
+  withApiContext(async () => {
     const dodoPayments = createDodopayments();
 
     const checkout = await dodoPayments.checkoutSessions.create({
@@ -27,12 +28,8 @@ async function checkoutHandler(request: NextRequest) {
     });
 
     return NextResponse.json({ checkout_url: checkout.checkout_url });
-  } catch (error) {
-    console.error(error);
-    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+  }),
+  {
+    routeId: 'POST:/api/checkout',
   }
-}
-
-export const POST = withRateLimit(checkoutHandler, {
-  routeId: 'POST:/api/checkout',
-});
+);

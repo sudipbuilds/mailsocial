@@ -6,12 +6,12 @@ import {
   getClientIdentifier,
   getRouteId,
   type CheckRateLimitResult,
-} from '@/lib/rate-limit';
+} from '@/lib/rateLimit';
 import {
   resolveRateLimitPolicy,
   type RateLimitPolicy,
   type RouteRateLimitPolicies,
-} from '@/lib/rate-limit/config';
+} from '@/lib/rateLimit/config';
 
 type RateLimitOptions = {
   routeId?: string;

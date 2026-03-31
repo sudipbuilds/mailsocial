@@ -1,12 +1,13 @@
 import { and, eq, isNull } from 'drizzle-orm';
-import { NextResponse, NextRequest } from 'next/server';
+import { NextResponse } from 'next/server';
 
 import { getD1Database } from '@/db';
 import { orders, users } from '@/db/schema';
 import { createAuth } from '@/lib/auth/config';
 import { generateSecretKey } from '@/lib/generate-key';
 import { loginFormSchema } from '@/lib/validations';
-import { withRateLimit } from '@/lib/rate-limit/with-rate-limit';
+import { withRateLimit } from '@/lib/rateLimit/withRateLimit';
+import { withApiContext } from '@/lib/api/withApiContext';
 
 function createResponseWithCookies(
   data: object,
@@ -21,12 +22,12 @@ function createResponseWithCookies(
   return response;
 }
 
-async function signinHandler(request: NextRequest) {
-  try {
+export const POST = withRateLimit(
+  withApiContext(async (request, ctx) => {
     const reqBody = await request.json();
     const validated = loginFormSchema.safeParse(reqBody);
     if (!validated.success) {
-      return NextResponse.json({ error: validated.error.issues[0].message }, { status: 400 });
+      return ctx.error.badRequest(validated.error.issues[0].message);
     }
 
     const { email, otp } = validated.data;
@@ -35,7 +36,7 @@ async function signinHandler(request: NextRequest) {
       headers: request.headers,
     });
     if (authenticated?.user || authenticated?.session) {
-      return NextResponse.json({ error: 'Already logged in' }, { status: 400 });
+      return ctx.error.badRequest('Already logged in');
     }
 
     const db = await getD1Database();
@@ -95,19 +96,11 @@ async function signinHandler(request: NextRequest) {
       );
     }
 
-    return NextResponse.json(
-      {
-        error:
-          'Order with this email not found. Please contact support if you believe this is an error.',
-      },
-      { status: 404 }
+    return ctx.error.notFound(
+      'Order with this email not found. Please contact support if you believe this is an error.'
     );
-  } catch (error) {
-    console.error(error);
-    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+  }),
+  {
+    routeId: 'POST:/api/signin',
   }
-}
-
-export const POST = withRateLimit(signinHandler, {
-  routeId: 'POST:/api/signin',
-});
+);

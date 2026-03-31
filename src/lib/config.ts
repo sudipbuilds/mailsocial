@@ -24,6 +24,7 @@ export default {
   auth: {
     secret: process.env.BETTER_AUTH_SECRET as string,
   },
+  env: process.env.NODE_ENV as 'development' | 'production',
   cloudflare: {
     d1: {
       token: process.env.CLOUDFLARE_D1_TOKEN as string,

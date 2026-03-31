@@ -47,7 +47,6 @@ export const metadata: Metadata = {
     url: config.author.url,
   },
   creator: config.author.username,
-  manifest: `${config.url}/manifest.json`,
   applicationName: config.appName,
   metadataBase: new URL(config.url),
   publisher: config.author.name,

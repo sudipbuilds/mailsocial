@@ -120,10 +120,10 @@ export const UsernameForm = () => {
                 isTransitioning && 'text-muted-foreground bg-neutral-200/50 cursor-not-allowed'
               )}
             >
-              Continue to payment / $15*
+              Continue to payment / $10*
             </button>
             <p className="text-muted-foreground/75 text-sm leading-tight">
-              *Forever Plan: Pay a one-time fee of $15 for ongoing access, ensuring you enjoy
+              *Forever Plan: Pay a one-time fee of $10 for ongoing access, ensuring you enjoy
               MailSocial for as long as it lasts, without any additional costs.
             </p>
           </div>
