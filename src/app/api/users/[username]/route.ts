@@ -1,18 +1,16 @@
 import { and, desc, eq, lt } from 'drizzle-orm';
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 
 import { getD1Database } from '@/db';
 import { posts, users } from '@/db/schema';
 import { currentUser } from '@/lib/current-user';
-import { withRateLimit } from '@/lib/rate-limit/with-rate-limit';
+import { withRateLimit } from '@/lib/rateLimit/withRateLimit';
+import { withApiContext } from '@/lib/api/withApiContext';
 
 const DEFAULT_LIMIT = 10;
 
-async function userProfileHandler(
-  request: NextRequest,
-  { params }: { params: Promise<{ username: string }> }
-) {
-  try {
+export const GET = withRateLimit(
+  withApiContext(async (request, ctx, { params }: { params: Promise<{ username: string }> }) => {
     const { username } = await params;
     const { searchParams } = new URL(request.url);
     const cursor = searchParams.get('cursor');
@@ -33,9 +31,7 @@ async function userProfileHandler(
       },
     });
 
-    if (!user) {
-      return NextResponse.json({ error: 'User not found' }, { status: 404 });
-    }
+    if (!user) return ctx.error.notFound('User not found');
 
     const session = await currentUser();
     const isOwnProfile = session?.user?.username === username;
@@ -87,12 +83,8 @@ async function userProfileHandler(
       isOwnProfile,
       secretKey: isOwnProfile ? user.secretKey : undefined,
     });
-  } catch (error) {
-    console.error(error);
-    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+  }),
+  {
+    routeId: 'GET:/api/users/[username]',
   }
-}
-
-export const GET = withRateLimit(userProfileHandler, {
-  routeId: 'GET:/api/users/[username]',
-});
+);

@@ -1,23 +1,24 @@
 import { eq } from 'drizzle-orm';
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 
 import config from '@/lib/config';
 import { getD1Database } from '@/db';
 import { posts, users } from '@/db/schema';
 import { postFormSchema } from '@/lib/validations';
-import { withRateLimit } from '@/lib/rate-limit/with-rate-limit';
+import { withRateLimit } from '@/lib/rateLimit/withRateLimit';
+import { withApiContext } from '@/lib/api/withApiContext';
 
-async function postsHandler(request: NextRequest) {
-  try {
+export const POST = withRateLimit(
+  withApiContext(async (request, ctx) => {
     const token = request.headers.get('Authorization')?.split('Bearer ')[1];
     if (!token || token !== config.emailWorkerAPISecret) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return ctx.error.unauthorized();
     }
 
     const reqBody = await request.json();
     const validated = postFormSchema.safeParse(reqBody);
     if (!validated.success) {
-      return NextResponse.json({ error: validated.error.issues[0].message }, { status: 400 });
+      return ctx.error.badRequest(validated.error.issues[0].message);
     }
 
     const { content, secretKey } = validated.data;
@@ -27,7 +28,7 @@ async function postsHandler(request: NextRequest) {
       where: eq(users.secretKey, secretKey),
     });
     if (!existingUser) {
-      return NextResponse.json({ error: 'Invalid secret key' }, { status: 400 });
+      return ctx.error.badRequest('Invalid secret key');
     }
 
     await db.insert(posts).values({
@@ -36,12 +37,8 @@ async function postsHandler(request: NextRequest) {
     });
 
     return NextResponse.json({ message: 'Post created successfully' });
-  } catch (error) {
-    console.error(error);
-    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+  }),
+  {
+    routeId: 'POST:/api/posts',
   }
-}
-
-export const POST = withRateLimit(postsHandler, {
-  routeId: 'POST:/api/posts',
-});
+);

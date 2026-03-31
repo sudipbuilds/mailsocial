@@ -38,7 +38,7 @@ export default function Home() {
           src="/mockup-vertical.webp"
           alt="MailSocial mobile view"
           className="object-left object-contain"
-          quality={100}
+          quality={75}
           priority
           fill
         />

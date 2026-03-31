@@ -1,4 +1,4 @@
-import { type RateLimitPolicy } from '@/lib/rate-limit/config';
+import { type RateLimitPolicy } from '@/lib/rateLimit/config';
 
 type StoredSlidingWindowCounter = {
   currentWindowStart: number;

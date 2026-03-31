@@ -1,18 +1,18 @@
 import { and, eq, isNull } from 'drizzle-orm';
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 
 import { getD1Database } from '@/db';
 import { orders, users } from '@/db/schema';
 import { usernameFormSchema } from '@/lib/validations';
-import { withRateLimit } from '@/lib/rate-limit/with-rate-limit';
+import { withRateLimit } from '@/lib/rateLimit/withRateLimit';
+import { withApiContext } from '@/lib/api/withApiContext';
 
-async function checkUsernameHandler(request: NextRequest) {
-  try {
+export const POST = withRateLimit(
+  withApiContext(async (request, ctx) => {
     const reqBody = await request.json();
     const validated = usernameFormSchema.safeParse(reqBody);
     if (!validated.success) {
-      console.error(validated.error.issues[0].message);
-      return NextResponse.json({ error: validated.error.issues[0].message }, { status: 400 });
+      return ctx.error.badRequest(validated.error.issues[0].message);
     }
 
     const db = await getD1Database();
@@ -34,12 +34,8 @@ async function checkUsernameHandler(request: NextRequest) {
     const isAvailable = !existingUser && !pendingOrder;
 
     return NextResponse.json({ isAvailable });
-  } catch (error) {
-    console.error(error);
-    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+  }),
+  {
+    routeId: 'POST:/api/check-username',
   }
-}
-
-export const POST = withRateLimit(checkUsernameHandler, {
-  routeId: 'POST:/api/check-username',
-});
+);

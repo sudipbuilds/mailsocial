@@ -1,5 +1,5 @@
 import { eq } from 'drizzle-orm';
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 
 import {
   sendPaymentSuccessEmail,
@@ -10,167 +10,172 @@ import {
 import { getD1Database } from '@/db';
 import { createDodopayments } from '@/lib/dodopayments';
 import { orders, users, webhookEvents } from '@/db/schema';
-import { withRateLimit } from '@/lib/rate-limit/with-rate-limit';
+import { withApiContext } from '@/lib/api/withApiContext';
+import { withRateLimit } from '@/lib/rateLimit/withRateLimit';
 
-async function dodoWebhookHandler(request: NextRequest) {
-  const raw = await request.text();
-  const webhookId = request.headers.get('webhook-id');
-  const webhookSignature = request.headers.get('webhook-signature');
-  const webhookTimestamp = request.headers.get('webhook-timestamp');
+export const POST = withRateLimit(
+  withApiContext(async (request, ctx) => {
+    const raw = await request.text();
+    const webhookId = request.headers.get('webhook-id');
+    const webhookSignature = request.headers.get('webhook-signature');
+    const webhookTimestamp = request.headers.get('webhook-timestamp');
 
-  if (!webhookId || !webhookSignature || !webhookTimestamp) {
-    return NextResponse.json({ error: 'Missing webhook headers' }, { status: 400 });
-  }
-
-  const dodo = createDodopayments();
-
-  let event;
-  try {
-    event = dodo.webhooks.unwrap(raw, {
-      headers: {
-        'webhook-id': webhookId,
-        'webhook-signature': webhookSignature,
-        'webhook-timestamp': webhookTimestamp,
-      },
-    });
-  } catch (error) {
-    return NextResponse.json({ error: 'Invalid signature' }, { status: 401 });
-  }
-
-  const db = await getD1Database();
-
-  // Idempotency: ignore if already processed
-  const existingEvent = await db.query.webhookEvents.findFirst({
-    where: eq(webhookEvents.id, webhookId),
-  });
-
-  if (existingEvent) {
-    return NextResponse.json({ received: true });
-  }
-
-  // Log webhook event
-  await db.insert(webhookEvents).values({
-    id: webhookId,
-    eventType: event.type,
-    receivedAt: new Date(),
-    processed: false,
-    raw,
-  });
-
-  if (event.type === 'payment.succeeded') {
-    const payload = event.data;
-    const username = payload.custom_field_responses?.find(field => field.key === 'username')?.value;
-    const productId = payload.product_cart?.[0]?.product_id;
-
-    if (!username || !productId) {
-      return NextResponse.json({ error: 'Username and product are required' }, { status: 400 });
+    if (!webhookId || !webhookSignature || !webhookTimestamp) {
+      return ctx.error.badRequest('Missing webhook headers');
     }
 
-    const existingOrder = await db.query.orders.findFirst({
-      where: eq(orders.paymentId, payload.payment_id),
+    const dodo = createDodopayments();
+
+    let event;
+    try {
+      event = dodo.webhooks.unwrap(raw, {
+        headers: {
+          'webhook-id': webhookId,
+          'webhook-signature': webhookSignature,
+          'webhook-timestamp': webhookTimestamp,
+        },
+      });
+    } catch (err) {
+      ctx.log.warn({ err }, 'Invalid webhook signature');
+      return ctx.error.unauthorized('Invalid signature');
+    }
+
+    const db = await getD1Database();
+
+    // Idempotency: ignore if already processed
+    const existingEvent = await db.query.webhookEvents.findFirst({
+      where: eq(webhookEvents.id, webhookId),
     });
-    if (existingOrder) {
+
+    if (existingEvent) {
+      return NextResponse.json({ received: true });
+    }
+
+    // Log webhook event
+    await db.insert(webhookEvents).values({
+      id: webhookId,
+      eventType: event.type,
+      receivedAt: new Date(),
+      processed: false,
+      raw,
+    });
+
+    if (event.type === 'payment.succeeded') {
+      const payload = event.data;
+      const username = payload.custom_field_responses?.find(
+        field => field.key === 'username'
+      )?.value;
+      const productId = payload.product_cart?.[0]?.product_id;
+
+      if (!username || !productId) {
+        return ctx.error.badRequest('Username and product are required');
+      }
+
+      const existingOrder = await db.query.orders.findFirst({
+        where: eq(orders.paymentId, payload.payment_id),
+      });
+      if (existingOrder) {
+        await db
+          .update(webhookEvents)
+          .set({ processed: true })
+          .where(eq(webhookEvents.id, webhookId));
+        return NextResponse.json({ received: true });
+      }
+
+      // ? Faah! D1 doesn't support SQL transactions - use batch() for atomic operations
+      await db.batch([
+        db.insert(orders).values({
+          productId,
+          webhookId,
+          userId: null,
+          customerId: payload.customer.customer_id,
+          customerEmail: payload.customer.email,
+          customerName: payload.customer.name,
+          customerUsername: username,
+          paymentId: payload.payment_id,
+          paymentStatus: payload.status as string,
+          amount: payload.total_amount,
+          currency: payload.currency as string,
+          invoiceUrl: payload.invoice_url ?? null,
+          paymentMethod: payload.payment_method ?? null,
+        }),
+        db.update(webhookEvents).set({ processed: true }).where(eq(webhookEvents.id, webhookId)),
+      ]);
+
+      await sendPaymentSuccessEmail(
+        payload.customer.email,
+        payload.customer.name,
+        payload.invoice_url ?? null
+      );
+
+      return NextResponse.json({ received: true });
+    } else if (event.type === 'payment.failed') {
+      const payload = event.data;
+
+      await sendPaymentFailedEmail(payload.customer.email, payload.customer.name);
+
       await db
         .update(webhookEvents)
         .set({ processed: true })
         .where(eq(webhookEvents.id, webhookId));
+
       return NextResponse.json({ received: true });
-    }
+    } else if (event.type === 'payment.cancelled') {
+      const payload = event.data;
 
-    // ? Faah! D1 doesn't support SQL transactions - use batch() for atomic operations
-    await db.batch([
-      db.insert(orders).values({
-        productId,
-        webhookId,
-        userId: null,
-        customerId: payload.customer.customer_id,
-        customerEmail: payload.customer.email,
-        customerName: payload.customer.name,
-        customerUsername: username,
-        paymentId: payload.payment_id,
-        paymentStatus: payload.status as string,
-        amount: payload.total_amount,
-        currency: payload.currency as string,
-        invoiceUrl: payload.invoice_url ?? null,
-        paymentMethod: payload.payment_method ?? null,
-      }),
-      db.update(webhookEvents).set({ processed: true }).where(eq(webhookEvents.id, webhookId)),
-    ]);
+      await sendPaymentCancelledEmail(payload.customer.email, payload.customer.name);
 
-    await sendPaymentSuccessEmail(
-      payload.customer.email,
-      payload.customer.name,
-      payload.invoice_url ?? null
-    );
+      await db
+        .update(webhookEvents)
+        .set({ processed: true })
+        .where(eq(webhookEvents.id, webhookId));
 
-    return NextResponse.json({ received: true });
-  } else if (event.type === 'payment.failed') {
-    const payload = event.data;
+      return NextResponse.json({ received: true });
+    } else if (event.type === 'refund.succeeded') {
+      const payload = event.data;
 
-    await sendPaymentFailedEmail(payload.customer.email, payload.customer.name);
+      const order = await db.query.orders.findFirst({
+        where: eq(orders.paymentId, payload.payment_id),
+      });
 
-    await db
-      .update(webhookEvents)
-      .set({
-        processed: true,
-      })
-      .where(eq(webhookEvents.id, webhookId));
+      if (order) {
+        // userId can be null if the user didn't sign up after the payment
+        if (order.userId) {
+          await db.batch([
+            db.delete(users).where(eq(users.id, order.userId)),
+            db.update(orders).set({ refundedAt: new Date() }).where(eq(orders.id, order.id)),
+            db
+              .update(webhookEvents)
+              .set({ processed: true })
+              .where(eq(webhookEvents.id, webhookId)),
+          ]);
+        } else {
+          await db.batch([
+            db.update(orders).set({ refundedAt: new Date() }).where(eq(orders.id, order.id)),
+            db
+              .update(webhookEvents)
+              .set({ processed: true })
+              .where(eq(webhookEvents.id, webhookId)),
+          ]);
+        }
 
-    return NextResponse.json({ received: true });
-  } else if (event.type === 'payment.cancelled') {
-    const payload = event.data;
+        await sendRefundSuccessEmail(
+          order.customerEmail,
+          order.customerName,
+          order.amount,
+          order.currency
+        );
 
-    // TODO: Might schedule it to be sent after 24 hours
-    await sendPaymentCancelledEmail(payload.customer.email, payload.customer.name);
-
-    await db
-      .update(webhookEvents)
-      .set({
-        processed: true,
-      })
-      .where(eq(webhookEvents.id, webhookId));
-
-    return NextResponse.json({ received: true });
-  } else if (event.type === 'refund.succeeded') {
-    const payload = event.data;
-
-    const order = await db.query.orders.findFirst({
-      where: eq(orders.paymentId, payload.payment_id),
-    });
-
-    if (order) {
-      // userId can be null if the user didn't sign up after the payment
-      if (order.userId) {
-        await db.batch([
-          db.delete(users).where(eq(users.id, order.userId)),
-          db.update(orders).set({ refundedAt: new Date() }).where(eq(orders.id, order.id)),
-          db.update(webhookEvents).set({ processed: true }).where(eq(webhookEvents.id, webhookId)),
-        ]);
-      } else {
-        await db.batch([
-          db.update(orders).set({ refundedAt: new Date() }).where(eq(orders.id, order.id)),
-          db.update(webhookEvents).set({ processed: true }).where(eq(webhookEvents.id, webhookId)),
-        ]);
+        return NextResponse.json({ received: true });
       }
 
-      await sendRefundSuccessEmail(
-        order.customerEmail,
-        order.customerName,
-        order.amount,
-        order.currency
-      );
-
-      return NextResponse.json({ received: true });
+      ctx.log.warn({ paymentId: payload.payment_id }, 'Refund webhook order not found');
+      return NextResponse.json({ received: true, warning: 'Order not found' });
     }
 
-    // Log it but return 200 to acknowledge receipt
-    console.error('Refund webhook: Order not found for payment_id:', payload.payment_id);
-    return NextResponse.json({ received: true, warning: 'Order not found' });
+    return NextResponse.json({ received: true, unhandled: event.type });
+  }),
+  {
+    routeId: 'POST:/api/webhooks/dodopayments',
   }
-
-  return NextResponse.json({ received: true, unhandled: event.type });
-}
-
-export const POST = withRateLimit(dodoWebhookHandler, {
-  routeId: 'POST:/api/webhooks/dodopayments',
-});
+);
