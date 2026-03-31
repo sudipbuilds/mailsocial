@@ -12,9 +12,9 @@ export default {
   emailWorkerAPISecret: process.env.EMAIL_WORKER_API_SECRET as string,
   dodopayments: {
     bearerToken: process.env.DODOPAYMENTS_BEARER_TOKEN as string,
-    environment: process.env.DODO_PAYMENTS_ENVIRONMENT as 'test_mode' | 'live_mode',
-    webhookKey: process.env.DODO_PAYMENTS_WEBHOOK_KEY as string,
-    productId: process.env.DODO_PAYMENTS_PRODUCT_ID as string,
+    environment: process.env.DODOPAYMENTS_ENVIRONMENT as 'test_mode' | 'live_mode',
+    webhookKey: process.env.DODOPAYMENTS_WEBHOOK_KEY as string,
+    productId: process.env.DODOPAYMENTS_PRODUCT_ID as string,
   },
   resend: {
     apiKey: process.env.RESEND_API_KEY as string,
