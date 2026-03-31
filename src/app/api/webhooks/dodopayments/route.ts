@@ -14,9 +14,13 @@ import { withRateLimit } from '@/lib/rate-limit/with-rate-limit';
 
 async function dodoWebhookHandler(request: NextRequest) {
   const raw = await request.text();
-  const webhookId = request.headers.get('webhook-id')!;
-  const webhookSignature = request.headers.get('webhook-signature')!;
-  const webhookTimestamp = request.headers.get('webhook-timestamp')!;
+  const webhookId = request.headers.get('webhook-id');
+  const webhookSignature = request.headers.get('webhook-signature');
+  const webhookTimestamp = request.headers.get('webhook-timestamp');
+
+  if (!webhookId || !webhookSignature || !webhookTimestamp) {
+    return NextResponse.json({ error: 'Missing webhook headers' }, { status: 400 });
+  }
 
   const dodo = createDodopayments();
 

@@ -33,16 +33,16 @@ export const otpFormSchema = loginFormSchema.pick({ otp: true });
 export type OtpFormInput = z.infer<typeof otpFormSchema>;
 
 export const settingsFormSchema = z.object({
-  name: z.string().min(1, 'Name is required'),
-  bio: z.string().optional(),
-  website: z.string().url('Invalid URL').or(z.literal('')).optional(),
+  name: z.string().min(1, 'Name is required').max(100, 'Name too long'),
+  bio: z.string().max(500, 'Bio too long').optional(),
+  website: z.string().url('Invalid URL').max(200, 'URL too long').or(z.literal('')).optional(),
   isPrivate: z.boolean(),
 });
 
 export type SettingsFormInput = z.infer<typeof settingsFormSchema>;
 
 export const postFormSchema = z.object({
-  content: z.string().min(1, 'Content is required'),
+  content: z.string().min(1, 'Content is required').max(1000, 'Content too long'),
   secretKey: z.string().min(1, 'Secret key is required'),
 });
 
