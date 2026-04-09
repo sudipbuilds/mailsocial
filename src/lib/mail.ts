@@ -104,3 +104,26 @@ export const sendRefundSuccessEmail = async (
     `,
   });
 };
+
+export const sendAccountDeletedEmail = async (
+  email: string,
+  customerName: string,
+  refundEligible: boolean
+) => {
+  await resend.emails.send({
+    from: config.resend.from,
+    to: email,
+    subject: 'Your MailSocial account has been deleted',
+    html: `
+      <p>Hi ${getFirstName(customerName)},</p>
+
+      <p>Your MailSocial account has been deleted.</p>
+
+      <p>I'd love to hear what could have been done better - just hit reply and let me know.</p>
+
+      ${refundEligible ? '<p>Your refund is on its way.</p>' : ''}
+
+      <p>All the best,<br/>Sudip, from MailSocial</p>
+    `,
+  });
+};

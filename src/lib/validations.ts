@@ -47,3 +47,9 @@ export const postFormSchema = z.object({
 });
 
 export type PostFormInput = z.infer<typeof postFormSchema>;
+
+export const deleteAccountSchema = z.object({
+  username: z.string().min(1, 'Username is required'),
+});
+
+export type DeleteAccountInput = z.infer<typeof deleteAccountSchema>;
