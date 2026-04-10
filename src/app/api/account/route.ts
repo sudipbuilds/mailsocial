@@ -1,9 +1,10 @@
-import { eq } from 'drizzle-orm';
+import { and, eq, desc, isNull } from 'drizzle-orm';
 import { NextResponse } from 'next/server';
 
 import { getD1Database } from '@/db';
-import { users } from '@/db/schema';
+import { orders, users } from '@/db/schema';
 import { currentUser } from '@/lib/current-user';
+import { createDodopayments } from '@/lib/dodopayments';
 import { sendAccountDeletedEmail } from '@/lib/mail';
 import { deleteAccountSchema } from '@/lib/validations';
 import { withRateLimit } from '@/lib/rateLimit/withRateLimit';
@@ -37,9 +38,31 @@ export const DELETE = withRateLimit(
     );
     const refundEligible = daysSinceCreation < REFUND_ELIGIBLE_DAYS;
 
+    const order = await db.query.orders.findFirst({
+      where: and(
+        eq(orders.userId, session.user.id),
+        eq(orders.customerUsername, session.user.username),
+        eq(orders.paymentStatus, 'succeeded'),
+        isNull(orders.refundedAt)
+      ),
+      orderBy: desc(orders.createdAt),
+    });
+
     await db.delete(users).where(eq(users.id, session.user.id));
 
-    await sendAccountDeletedEmail(session.user.email, session.user.name, refundEligible);
+    if (refundEligible && order) {
+      try {
+        const dodo = createDodopayments();
+        await dodo.refunds.create({
+          payment_id: order.paymentId,
+          reason: 'Account deletion refund',
+        });
+      } catch (error) {
+        ctx.log.warn({ error }, 'Failed to refund order');
+      }
+    }
+
+    await sendAccountDeletedEmail(session.user.email, session.user.name);
 
     return NextResponse.json({
       message: 'Account deleted successfully',
