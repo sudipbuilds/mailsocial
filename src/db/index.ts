@@ -14,6 +14,6 @@ export const getD1Database = cache(async () => {
 
   return drizzle(env.D1_DATABASE, {
     schema,
-    logger: config.env === 'development' ? true : false,
+    logger: false,
   });
 });

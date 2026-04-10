@@ -46,6 +46,7 @@ export const POST = withRateLimit(
     });
 
     if (existingUser) {
+      ctx.log.info({ userId: existingUser.id }, 'Existing user sign-in');
       const authResponse = await auth.api.signInEmailOTP({
         headers: request.headers,
         body: { email, otp },
@@ -68,6 +69,7 @@ export const POST = withRateLimit(
     });
 
     if (existingOrder) {
+      ctx.log.info({ orderId: existingOrder.id }, 'New user sign-in from order');
       const secretKey = generateSecretKey(existingOrder.customerUsername);
 
       const authResponse = await auth.api.signInEmailOTP({
@@ -88,6 +90,10 @@ export const POST = withRateLimit(
           .update(orders)
           .set({ userId: authData.user.id })
           .where(eq(orders.id, existingOrder.id));
+        ctx.log.info(
+          { userId: authData.user.id, orderId: existingOrder.id },
+          'Order linked to user'
+        );
       }
 
       return createResponseWithCookies(
@@ -96,6 +102,7 @@ export const POST = withRateLimit(
       );
     }
 
+    ctx.log.warn({ email }, 'Sign-in attempted but no user or order found');
     return ctx.error.notFound(
       'Order with this email not found. Please contact support if you believe this is an error.'
     );

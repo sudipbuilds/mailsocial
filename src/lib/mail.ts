@@ -1,13 +1,16 @@
 import { Resend } from 'resend';
 
 import config from '@/lib/config';
+import { logger } from '@/lib/logger';
 
 const resend = new Resend(config.resend.apiKey);
+const log = logger.child({ module: 'mail' });
 
 const getFirstName = (fullName: string) => fullName.split(' ')[0];
 
 export const sendEmailVerificationMail = async (email: string, otp: string) => {
-  await resend.emails.send({
+  log.debug({ to: email, type: 'verification' }, 'Sending email');
+  const { data, error } = await resend.emails.send({
     from: config.resend.from,
     to: email,
     subject: `Your code: ${otp}`,
@@ -19,6 +22,8 @@ export const sendEmailVerificationMail = async (email: string, otp: string) => {
       <p>It'll expire in 5 minutes. Didn't request this? Just ignore it.</p>
     `,
   });
+  if (error) log.error({ err: error, to: email, type: 'verification' }, 'Email send failed');
+  else log.info({ messageId: data?.id, to: email, type: 'verification' }, 'Email sent');
 };
 
 export const sendPaymentSuccessEmail = async (
@@ -26,7 +31,8 @@ export const sendPaymentSuccessEmail = async (
   customerName: string,
   invoiceUrl: string | null
 ) => {
-  await resend.emails.send({
+  log.debug({ to: email, type: 'payment_success' }, 'Sending email');
+  const { data, error } = await resend.emails.send({
     from: config.resend.from,
     to: email,
     subject: "You're all set - Welcome to MailSocial",
@@ -42,10 +48,13 @@ export const sendPaymentSuccessEmail = async (
       <p>Cheers,<br/>Sudip, from MailSocial</p>
     `,
   });
+  if (error) log.error({ err: error, to: email, type: 'payment_success' }, 'Email send failed');
+  else log.info({ messageId: data?.id, to: email, type: 'payment_success' }, 'Email sent');
 };
 
 export const sendPaymentFailedEmail = async (email: string, customerName: string) => {
-  await resend.emails.send({
+  log.debug({ to: email, type: 'payment_failed' }, 'Sending email');
+  const { data, error } = await resend.emails.send({
     from: config.resend.from,
     to: email,
     subject: "Your payment didn't go through",
@@ -59,10 +68,13 @@ export const sendPaymentFailedEmail = async (email: string, customerName: string
       <p>Cheers,<br/>Sudip, from MailSocial</p>
     `,
   });
+  if (error) log.error({ err: error, to: email, type: 'payment_failed' }, 'Email send failed');
+  else log.info({ messageId: data?.id, to: email, type: 'payment_failed' }, 'Email sent');
 };
 
 export const sendPaymentCancelledEmail = async (email: string, customerName: string) => {
-  await resend.emails.send({
+  log.debug({ to: email, type: 'payment_cancelled' }, 'Sending email');
+  const { data, error } = await resend.emails.send({
     from: config.resend.from,
     to: email,
     subject: "Your payment didn't go through",
@@ -76,6 +88,8 @@ export const sendPaymentCancelledEmail = async (email: string, customerName: str
       <p>Cheers,<br/>Sudip, from MailSocial</p>
     `,
   });
+  if (error) log.error({ err: error, to: email, type: 'payment_cancelled' }, 'Email send failed');
+  else log.info({ messageId: data?.id, to: email, type: 'payment_cancelled' }, 'Email sent');
 };
 
 export const sendRefundSuccessEmail = async (
@@ -89,7 +103,8 @@ export const sendRefundSuccessEmail = async (
     currency: currency.toUpperCase(),
   }).format(amount / 100);
 
-  await resend.emails.send({
+  log.debug({ to: email, type: 'refund_success' }, 'Sending email');
+  const { data, error } = await resend.emails.send({
     from: config.resend.from,
     to: email,
     subject: 'Your refund is on the way',
@@ -103,10 +118,13 @@ export const sendRefundSuccessEmail = async (
       <p>All the best,<br/>Sudip, from MailSocial</p>
     `,
   });
+  if (error) log.error({ err: error, to: email, type: 'refund_success' }, 'Email send failed');
+  else log.info({ messageId: data?.id, to: email, type: 'refund_success' }, 'Email sent');
 };
 
 export const sendAccountDeletedEmail = async (email: string, customerName: string) => {
-  await resend.emails.send({
+  log.debug({ to: email, type: 'account_deleted' }, 'Sending email');
+  const { data, error } = await resend.emails.send({
     from: config.resend.from,
     to: email,
     subject: 'Your MailSocial account has been deleted',
@@ -118,4 +136,6 @@ export const sendAccountDeletedEmail = async (email: string, customerName: strin
       <p>All the best,<br/>Sudip, from MailSocial</p>
     `,
   });
+  if (error) log.error({ err: error, to: email, type: 'account_deleted' }, 'Email send failed');
+  else log.info({ messageId: data?.id, to: email, type: 'account_deleted' }, 'Email sent');
 };

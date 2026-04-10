@@ -15,6 +15,6 @@ export function createRouteLogger(request: NextRequest) {
   return logger.child({
     route: request.nextUrl.pathname,
     method: request.method,
-    requestId: request.headers.get('x-request-id') ?? undefined,
+    requestId: request.headers.get('x-request-id') ?? crypto.randomUUID(),
   });
 }

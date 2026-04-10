@@ -20,8 +20,11 @@ export function withApiContext<TArgs extends unknown[] = unknown[]>(handler: Rou
     const log = createRouteLogger(request);
     const ctx: ApiContext = { log, error };
 
+    const start = Date.now();
     try {
-      return await handler(request, ctx, ...args);
+      const response = await handler(request, ctx, ...args);
+      log.info({ status: response.status, durationMs: Date.now() - start }, 'Request completed');
+      return response;
     } catch (err) {
       return handleUnexpectedError(err, log);
     }

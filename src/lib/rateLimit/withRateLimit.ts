@@ -12,6 +12,7 @@ import {
   type RateLimitPolicy,
   type RouteRateLimitPolicies,
 } from '@/lib/rateLimit/config';
+import { logger } from '@/lib/logger';
 
 type RateLimitOptions = {
   routeId?: string;
@@ -54,6 +55,7 @@ export function withRateLimit<TArgs extends unknown[] = unknown[]>(
 
     const { env } = await getCloudflareContext({ async: true });
     if (!env.KV) {
+      logger.error({ routeId }, 'KV namespace not configured for rate limiter');
       return NextResponse.json({ error: 'Rate limiter not configured' }, { status: 500 });
     }
 
@@ -66,6 +68,10 @@ export function withRateLimit<TArgs extends unknown[] = unknown[]>(
     });
 
     if (!limitResult.allowed) {
+      logger.warn(
+        { routeId, identifier, retryAfter: limitResult.retryAfter },
+        'Rate limit exceeded'
+      );
       const response = NextResponse.json(
         { error: 'Too Many Requests', retryAfter: limitResult.retryAfter },
         { status: 429 }

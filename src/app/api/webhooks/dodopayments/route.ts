@@ -21,6 +21,7 @@ export const POST = withRateLimit(
     const webhookTimestamp = request.headers.get('webhook-timestamp');
 
     if (!webhookId || !webhookSignature || !webhookTimestamp) {
+      ctx.log.warn('Webhook received with missing headers');
       return ctx.error.badRequest('Missing webhook headers');
     }
 
@@ -40,6 +41,8 @@ export const POST = withRateLimit(
       return ctx.error.unauthorized('Invalid signature');
     }
 
+    ctx.log.info({ eventType: event.type, webhookId }, 'Webhook event received');
+
     const db = await getD1Database();
 
     // Idempotency: ignore if already processed
@@ -48,6 +51,7 @@ export const POST = withRateLimit(
     });
 
     if (existingEvent) {
+      ctx.log.info({ webhookId }, 'Duplicate webhook event skipped');
       return NextResponse.json({ received: true });
     }
 
@@ -68,6 +72,10 @@ export const POST = withRateLimit(
       const productId = payload.product_cart?.[0]?.product_id;
 
       if (!username || !productId) {
+        ctx.log.warn(
+          { paymentId: payload.payment_id },
+          'Payment succeeded but missing username or product'
+        );
         return ctx.error.badRequest('Username and product are required');
       }
 
@@ -75,6 +83,7 @@ export const POST = withRateLimit(
         where: eq(orders.paymentId, payload.payment_id),
       });
       if (existingOrder) {
+        ctx.log.info({ paymentId: payload.payment_id }, 'Order already exists for payment');
         await db
           .update(webhookEvents)
           .set({ processed: true })
@@ -102,6 +111,8 @@ export const POST = withRateLimit(
         db.update(webhookEvents).set({ processed: true }).where(eq(webhookEvents.id, webhookId)),
       ]);
 
+      ctx.log.info({ paymentId: payload.payment_id, username }, 'Order created from payment');
+
       await sendPaymentSuccessEmail(
         payload.customer.email,
         payload.customer.name,
@@ -111,6 +122,10 @@ export const POST = withRateLimit(
       return NextResponse.json({ received: true });
     } else if (event.type === 'payment.failed') {
       const payload = event.data;
+      ctx.log.info(
+        { paymentId: payload.payment_id, email: payload.customer.email },
+        'Payment failed'
+      );
 
       await sendPaymentFailedEmail(payload.customer.email, payload.customer.name);
 
@@ -122,6 +137,10 @@ export const POST = withRateLimit(
       return NextResponse.json({ received: true });
     } else if (event.type === 'payment.cancelled') {
       const payload = event.data;
+      ctx.log.info(
+        { paymentId: payload.payment_id, email: payload.customer.email },
+        'Payment cancelled'
+      );
 
       await sendPaymentCancelledEmail(payload.customer.email, payload.customer.name);
 
@@ -133,6 +152,7 @@ export const POST = withRateLimit(
       return NextResponse.json({ received: true });
     } else if (event.type === 'refund.succeeded') {
       const payload = event.data;
+      ctx.log.info({ paymentId: payload.payment_id }, 'Refund succeeded');
 
       const order = await db.query.orders.findFirst({
         where: eq(orders.paymentId, payload.payment_id),
@@ -173,6 +193,7 @@ export const POST = withRateLimit(
       return NextResponse.json({ received: true, warning: 'Order not found' });
     }
 
+    ctx.log.warn({ eventType: event.type }, 'Unhandled webhook event type');
     return NextResponse.json({ received: true, unhandled: event.type });
   }),
   {

@@ -49,8 +49,13 @@ export const DELETE = withRateLimit(
     });
 
     await db.delete(users).where(eq(users.id, session.user.id));
+    ctx.log.info({ userId: session.user.id, refundEligible }, 'Account deleted');
 
     if (refundEligible && order) {
+      ctx.log.info(
+        { orderId: order.id, paymentId: order.paymentId },
+        'Initiating refund for deleted account'
+      );
       try {
         const dodo = createDodopayments();
         await dodo.refunds.create({

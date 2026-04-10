@@ -34,6 +34,7 @@ export const PATCH = withRateLimit(
       })
       .where(eq(users.id, session.user.id));
 
+    ctx.log.info({ userId: session.user.id }, 'Settings updated');
     return NextResponse.json({ message: 'Settings updated successfully' });
   }),
   {

@@ -12,6 +12,7 @@ export const POST = withRateLimit(
   withApiContext(async (request, ctx) => {
     const token = request.headers.get('Authorization')?.split('Bearer ')[1];
     if (!token || token !== config.emailWorkerAPISecret) {
+      ctx.log.warn('Post creation rejected: invalid bearer token');
       return ctx.error.unauthorized();
     }
 
@@ -28,6 +29,7 @@ export const POST = withRateLimit(
       where: eq(users.secretKey, secretKey),
     });
     if (!existingUser) {
+      ctx.log.warn('Post creation rejected: invalid secret key');
       return ctx.error.badRequest('Invalid secret key');
     }
 
@@ -36,6 +38,7 @@ export const POST = withRateLimit(
       content,
     });
 
+    ctx.log.info({ userId: existingUser.id }, 'Post created');
     return NextResponse.json({ message: 'Post created successfully' });
   }),
   {

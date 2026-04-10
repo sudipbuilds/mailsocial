@@ -5,6 +5,7 @@ import { drizzleAdapter } from 'better-auth/adapters/drizzle';
 import config from '@/lib/config';
 import { getD1Database } from '@/db';
 import * as schema from '@/db/schema';
+import { logger } from '@/lib/logger';
 import { sendEmailVerificationMail } from '@/lib/mail';
 
 export async function createAuth() {
@@ -51,7 +52,8 @@ export async function createAuth() {
     },
     plugins: [
       emailOTP({
-        async sendVerificationOTP(data, ctx) {
+        async sendVerificationOTP(data) {
+          logger.debug({ email: data.email, otpType: data.type }, 'OTP verification requested');
           if (data.type === 'sign-in') {
             await sendEmailVerificationMail(data.email, data.otp);
           }

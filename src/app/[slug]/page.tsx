@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation';
 import { dehydrate, HydrationBoundary, QueryClient } from '@tanstack/react-query';
 
 import config from '@/lib/config';
+import { logger } from '@/lib/logger';
 import { PageWrapper } from '@/components/page-wrapper';
 import { PostsList } from './components/posts-list';
 import { UserMenu } from './components/user-menu';
@@ -42,7 +43,8 @@ export default async function UserProfilePage({ params }: { params: Promise<{ sl
       queryFn: () => fetchUserData(slug, cookie),
       initialPageParam: undefined as string | undefined,
     });
-  } catch {
+  } catch (err) {
+    logger.warn({ err, slug }, 'Failed to prefetch user profile');
     notFound();
   }
 

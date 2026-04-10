@@ -6,7 +6,7 @@ import { withRateLimit } from '@/lib/rateLimit/withRateLimit';
 import { withApiContext } from '@/lib/api/withApiContext';
 
 export const POST = withRateLimit(
-  withApiContext(async () => {
+  withApiContext(async (_request, ctx) => {
     const dodoPayments = createDodopayments();
 
     const checkout = await dodoPayments.checkoutSessions.create({
@@ -27,6 +27,7 @@ export const POST = withRateLimit(
       ],
     });
 
+    ctx.log.info('Checkout session created');
     return NextResponse.json({ checkout_url: checkout.checkout_url });
   }),
   {
