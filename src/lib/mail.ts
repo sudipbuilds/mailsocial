@@ -104,3 +104,18 @@ export const sendRefundSuccessEmail = async (
     `,
   });
 };
+
+export const sendAccountDeletedEmail = async (email: string, customerName: string) => {
+  await resend.emails.send({
+    from: config.resend.from,
+    to: email,
+    subject: 'Your MailSocial account has been deleted',
+    html: `
+      <p>Hi ${getFirstName(customerName)},</p>
+
+      <p>Your MailSocial account has been deleted.</p>
+
+      <p>All the best,<br/>Sudip, from MailSocial</p>
+    `,
+  });
+};

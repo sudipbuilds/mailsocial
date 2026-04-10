@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 
+import config from '@/lib/config';
 import { PageWrapper } from '@/components/page-wrapper';
 
 export default function Home() {
@@ -65,6 +66,17 @@ export default function Home() {
         <h2 className="text-2xl">FAQs</h2>
         <div className="space-y-6">
           <div className="space-y-1">
+            <p>Q: How does MailSocial work?</p>
+            <p className="text-muted-foreground mb-2">
+              A: Create a username and you'll receive a secret email address. You send an email to
+              that address, and the subject becomes a post on your handle.
+            </p>
+            <p className="text-muted-foreground">
+              View example: <br />
+              <Link href={`${config.url}/sudipbiswas`}> {config.url}/sudipbiswas</Link>
+            </p>
+          </div>
+          <div className="space-y-1">
             <p>Q: Why only the subject line?</p>
             <p className="text-muted-foreground">
               A: It keeps every post short, intentional, and easy to write.
@@ -100,6 +112,19 @@ export default function Home() {
               A: Check your sent emails if you've posted before. Or log in and copy it again from
               settings.
             </p>
+          </div>
+          <div className="space-y-1">
+            <p>Q: Will I get a refund if I delete my account?</p>
+            <p className="text-muted-foreground">
+              A: Yes, only if you delete your account within 14 days of signing up.
+            </p>
+          </div>
+          <div className="space-y-1">
+            <p>Q: How do I delete my MailSocial account?</p>
+            <p className="text-muted-foreground mb-2">A: Login to delete your account.</p>
+            <Link href={`${config.url}/signin`} className="text-muted-foreground">
+              {config.url}/signin
+            </Link>
           </div>
         </div>
         <p className="text-muted-foreground">Still need help? help@mailsocial.sudipbiswas.dev</p>
