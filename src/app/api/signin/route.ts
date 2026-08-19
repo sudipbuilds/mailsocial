@@ -1,6 +1,8 @@
 import { and, eq, isNull } from 'drizzle-orm';
 import { NextResponse } from 'next/server';
 
+import { z } from 'zod';
+
 import { getD1Database } from '@/db';
 import { orders, users } from '@/db/schema';
 import { createAuth } from '@/lib/auth/config';
@@ -9,8 +11,17 @@ import { loginFormSchema } from '@/lib/validations';
 import { withRateLimit } from '@/lib/rateLimit/withRateLimit';
 import { withApiContext } from '@/lib/api/withApiContext';
 
+type SignInResponseBody = {
+  message: string;
+  username: string;
+};
+
+const authSessionSchema = z.object({
+  user: z.object({ id: z.string() }).optional(),
+});
+
 function createResponseWithCookies(
-  data: object,
+  data: SignInResponseBody,
   authResponse: Response,
   status = 200
 ): NextResponse {
@@ -84,14 +95,14 @@ export const POST = withRateLimit(
         asResponse: true,
       });
 
-      const authData = (await authResponse.json()) as { user?: { id: string } };
-      if (authData.user) {
+      const authData = authSessionSchema.safeParse(await authResponse.json());
+      if (authData.success && authData.data.user) {
         await db
           .update(orders)
-          .set({ userId: authData.user.id })
+          .set({ userId: authData.data.user.id })
           .where(eq(orders.id, existingOrder.id));
         ctx.log.info(
-          { userId: authData.user.id, orderId: existingOrder.id },
+          { userId: authData.data.user.id, orderId: existingOrder.id },
           'Order linked to user'
         );
       }

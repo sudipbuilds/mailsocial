@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
-import { useInfiniteQuery } from '@tanstack/react-query';
+import { useInfiniteQuery, type InfiniteData } from '@tanstack/react-query';
 
 import { SecretEmailCard } from '@/components/secret-email-card';
 
@@ -44,10 +44,16 @@ export function PostsList({ username }: { username: string }) {
   const loadMoreRef = useRef<HTMLDivElement>(null);
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading, isError } =
-    useInfiniteQuery({
+    useInfiniteQuery<
+      UserResponse,
+      Error,
+      InfiniteData<UserResponse>,
+      ['user', string],
+      string | undefined
+    >({
       queryKey: ['user', username],
       queryFn: ({ pageParam }) => fetchUserPosts(username, pageParam),
-      initialPageParam: undefined as string | undefined,
+      initialPageParam: undefined,
       getNextPageParam: lastPage => lastPage.nextCursor ?? undefined,
     });
 

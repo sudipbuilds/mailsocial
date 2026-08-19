@@ -2,7 +2,7 @@ import type { NextRequest } from 'next/server';
 import type { Logger } from 'pino';
 
 import { createRouteLogger } from '@/lib/logger';
-import { error, handleUnexpectedError } from '@/lib/api/error';
+import { error, handleUnexpectedError, type ApiRouteError } from '@/lib/api/error';
 
 export type ApiContext = {
   log: Logger;
@@ -26,7 +26,8 @@ export function withApiContext<TArgs extends unknown[] = unknown[]>(handler: Rou
       log.info({ status: response.status, durationMs: Date.now() - start }, 'Request completed');
       return response;
     } catch (err) {
-      return handleUnexpectedError(err, log);
+      const routeError: ApiRouteError = err instanceof Error ? err : { message: 'Unknown error' };
+      return handleUnexpectedError(routeError, log);
     }
   };
 }

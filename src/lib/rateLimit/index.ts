@@ -1,11 +1,25 @@
+import { z } from 'zod';
+
 import { type RateLimitPolicy } from '@/lib/rateLimit/config';
 
-type StoredSlidingWindowCounter = {
-  currentWindowStart: number;
-  currentCount: number;
-  previousWindowStart: number;
-  previousCount: number;
-};
+const storedSlidingWindowCounterSchema = z.object({
+  currentWindowStart: z.number(),
+  currentCount: z.number(),
+  previousWindowStart: z.number(),
+  previousCount: z.number(),
+});
+
+type StoredSlidingWindowCounter = z.infer<typeof storedSlidingWindowCounterSchema>;
+
+function parseStoredCounter(raw: string): StoredSlidingWindowCounter | null {
+  try {
+    const parsed: unknown = JSON.parse(raw);
+    const result = storedSlidingWindowCounterSchema.safeParse(parsed);
+    return result.success ? result.data : null;
+  } catch {
+    return null;
+  }
+}
 
 export type CheckRateLimitInput = {
   kv: KVNamespace;
@@ -117,7 +131,7 @@ export async function checkRateLimit(input: CheckRateLimitInput): Promise<CheckR
   const key = makeRateLimitKey(input.routeId, input.identifier);
 
   const raw = await input.kv.get(key);
-  const parsed = raw ? (JSON.parse(raw) as StoredSlidingWindowCounter) : null;
+  const parsed = raw ? parseStoredCounter(raw) : null;
   const counter = normalizeCounter(parsed, currentWindowStart, input.windowMs);
   const effectiveCount = calculateEffectiveCount(counter, now, input.windowMs);
 

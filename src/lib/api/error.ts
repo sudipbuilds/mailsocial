@@ -3,6 +3,8 @@ import type { Logger } from 'pino';
 
 type ErrorResponseBody = { error: string };
 
+export type ApiRouteError = Error | { message: string; stack?: string };
+
 function apiError(message: string, status: number): NextResponse<ErrorResponseBody> {
   return NextResponse.json({ error: message }, { status });
 }
@@ -14,7 +16,10 @@ export const error = {
   serverError: (message = 'Internal Server Error') => apiError(message, 500),
 };
 
-export function handleUnexpectedError(err: unknown, log: Logger): NextResponse<ErrorResponseBody> {
+export function handleUnexpectedError(
+  err: ApiRouteError,
+  log: Logger
+): NextResponse<ErrorResponseBody> {
   log.error({ err }, 'Unhandled API error');
   return error.serverError();
 }

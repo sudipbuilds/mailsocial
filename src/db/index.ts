@@ -2,7 +2,6 @@ import { cache } from 'react';
 import { drizzle } from 'drizzle-orm/d1';
 import { getCloudflareContext } from '@opennextjs/cloudflare';
 
-import config from '@/lib/config';
 import * as schema from './schema';
 
 export const getD1Database = cache(async () => {

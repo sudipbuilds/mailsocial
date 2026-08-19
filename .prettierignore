@@ -52,3 +52,17 @@
 
 # Ignore cloudflare files
 cloudflare-env.d.ts
+
+# Ignore agent tooling assets and the vendored oxlint plugin
+/.agent
+/.agents
+/.claude
+/.codex
+/.continue
+/.cursor
+/.gemini
+/.opencode
+/.pi
+/.roo
+/.windsurf
+/tools/oxlint/anti-slop

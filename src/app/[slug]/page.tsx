@@ -1,7 +1,12 @@
 import Link from 'next/link';
 import { headers } from 'next/headers';
 import { notFound } from 'next/navigation';
-import { dehydrate, HydrationBoundary, QueryClient } from '@tanstack/react-query';
+import {
+  dehydrate,
+  HydrationBoundary,
+  QueryClient,
+  type InfiniteData,
+} from '@tanstack/react-query';
 
 import config from '@/lib/config';
 import { logger } from '@/lib/logger';
@@ -38,10 +43,16 @@ export default async function UserProfilePage({ params }: { params: Promise<{ sl
   const queryClient = new QueryClient();
 
   try {
-    await queryClient.prefetchInfiniteQuery({
+    await queryClient.prefetchInfiniteQuery<
+      UserResponse,
+      Error,
+      InfiniteData<UserResponse>,
+      ['user', string],
+      string | undefined
+    >({
       queryKey: ['user', slug],
       queryFn: () => fetchUserData(slug, cookie),
-      initialPageParam: undefined as string | undefined,
+      initialPageParam: undefined,
     });
   } catch (err) {
     logger.warn({ err, slug }, 'Failed to prefetch user profile');
